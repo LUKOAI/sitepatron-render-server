@@ -6,7 +6,7 @@
 <title>SitePatron Deck v2 — Sosenco-style</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&display=block" rel="stylesheet">
 <style>
   :root {
     --cream: #F8F6F1;
@@ -275,11 +275,17 @@
   .demo-box.blue .label { color: var(--blue); }
 
   .demo-box .url {
+    display: block;
+    text-decoration: none;
     font-size: 21px;
     font-weight: 700;
     color: var(--anthrazit);
     margin-bottom: 10px;
     font-family: 'Inter', monospace;
+  }
+
+  .demo-box .url:hover {
+    color: var(--blue);
   }
 
   .demo-box .desc {
@@ -1128,12 +1134,12 @@
     <div class="demos-grid">
       <div class="demo-box yellow">
         <div class="label">🟡 WERSJA A — PATRONACKA  ●  LIVE</div>
-        <div class="url">{{DEMO_URL_A}}</div>
+        <a class="url" href="{{DEMO_URL_A}}" target="_blank" rel="noopener">{{DEMO_URL_A}}</a>
         <div class="desc">Tak wygląda strona pod patronat. Tylko Twoje produkty. Profil marki. Kontakt B2B.</div>
       </div>
       <div class="demo-box blue">
         <div class="label">🔵 WERSJA B — MULTI-BRAND  ●  LIVE</div>
-        <div class="url">{{DEMO_URL_B}}</div>
+        <a class="url" href="{{DEMO_URL_B}}" target="_blank" rel="noopener">{{DEMO_URL_B}}</a>
         <div class="desc">Tak wygląda strona multi-brand (do porównania). Twoje produkty obok 30+ konkurentów.</div>
       </div>
     </div>
