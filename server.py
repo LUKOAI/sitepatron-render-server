@@ -1,54 +1,30 @@
 """
-SitePatron Deck Render Service v1.3
-====================================
+SitePatron Deck Render Service v1.3.1
+======================================
 
 Flask endpoint który renderuje Sosenco-style PDF z HTML template'ów.
 Apps Script wysyła POST z wartościami per-klient + językiem,
 serwer zwraca PDF jako binary LUB wgrywa do Drive (jeśli klient
 prześle drive_folder_id).
 
+ZMIANY v1.3.1:
+- Drive upload error: zamiast cichego fallback do PDF binary,
+  endpoint zwraca JSON z pełnym traceback errora. Apps Script
+  zobaczy wtedy co poszło nie tak (np. Drive quota, perms, etc).
+- Logi: app.logger zamiast print() (gunicorn buforuje stdout).
+
 Endpoints:
     GET  /health          — status + lista dostępnych template'ów
     POST /render          — render PDF (wymaga X-API-Key)
-
-ZMIANY v1.3:
-- Drive Upload Mode: jeśli klient prześle `drive_folder_id` w request
-  + endpoint ma skonfigurowane GOOGLE_SERVICE_ACCOUNT_JSON,
-  to PDF jest wgrywany bezpośrednio do Drive folderu klienta
-  (przez service account), a endpoint zwraca JSON z file_id zamiast
-  PDF binary. Powód: Apps Script ma dzienny limit 50MB UrlFetch
-  bandwidth — wysyłanie 1.6MB PDF szybko go wyczerpuje.
-- Backward compat: jeśli klient nie prześle drive_folder_id,
-  endpoint zwraca PDF binary jak w v1.2.
-
-ZMIANY v1.2:
-- Fix polskich znaków diakrytycznych (ó, ą, ę): czekamy na
-  document.fonts.ready PLUS 5s timeout zamiast 2s.
-- Normalizacja URL DEMO_URL_A/DEMO_URL_B: jesli brak schemy http(s),
-  dodajemy https:// automatycznie.
-
-ZMIANY v1.1:
-- Fallback B2B: jeśli wszystkie 4 pola B2B są puste/brakujące →
-  endpoint podmienia 2 fragmenty HTML na uniwersalny tekst z
-  kalkulatorem oszczędności.
-
-Deploy:
-    docker build -t sitepatron-render .
-    docker run -p 8000:8000 \\
-        -e RENDER_API_KEY=secret \\
-        -e GOOGLE_SERVICE_ACCOUNT_JSON='{...}' \\
-        sitepatron-render
-
-Lokalnie:
-    pip install -r requirements.txt
-    playwright install chromium
-    RENDER_API_KEY=secret python3 server.py
 """
 
 import os
 import re
+import sys
 import json
+import logging
 import tempfile
+import traceback
 from datetime import datetime
 from pathlib import Path
 
@@ -66,6 +42,14 @@ except ImportError:
 
 app = Flask(__name__)
 
+# Logging do stderr (gunicorn poprawnie loguje stderr do Railway logs)
+logging.basicConfig(
+    stream=sys.stderr,
+    level=logging.INFO,
+    format='[%(asctime)s] [%(levelname)s] %(message)s',
+)
+log = logging.getLogger("sitepatron")
+
 # ============================================================
 # KONFIGURACJA
 # ============================================================
@@ -73,11 +57,8 @@ app = Flask(__name__)
 API_KEY = os.environ.get("RENDER_API_KEY", "")
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 PORT = int(os.environ.get("PORT", 8000))
-
-# Service account JSON do uploadu plikow do Drive (opcjonalne)
 GOOGLE_SERVICE_ACCOUNT_JSON = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "")
 
-# Defaulty cenowe — wpisuje endpoint, klient nie musi ich wysyłać
 DEFAULT_VALUES = {
     "PRICE_MONTHLY_USD": "59",
     "PRICE_YEARLY_USD": "499",
@@ -86,7 +67,6 @@ DEFAULT_VALUES = {
     "PRICE_LOCAL_APPROX": "240",
 }
 
-# Lokalne nazwy miesięcy do auto-DECK_DATE
 MONTHS = {
     "pl": ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec",
            "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
@@ -97,7 +77,7 @@ MONTHS = {
 }
 
 # ============================================================
-# B2B FALLBACK — gdy klient nie wypełnił 4 pól B2B
+# B2B FALLBACK
 # ============================================================
 
 B2B_FIELDS = ["B2B_QUANTITY", "B2B_PRODUCT_PL", "B2B_BUYERS_NOM", "B2B_BUYERS_GEN"]
@@ -135,14 +115,10 @@ B2B_FALLBACK = {
 
 
 # ============================================================
-# DRIVE UPLOAD (przez service account)
+# DRIVE UPLOAD
 # ============================================================
 
 def get_drive_service():
-    """
-    Build Google Drive service from service account credentials in env var.
-    Zwraca None jesli zmienna srodowiskowa nie jest ustawiona lub jest niepoprawna.
-    """
     if not DRIVE_LIBS_AVAILABLE:
         return None
     if not GOOGLE_SERVICE_ACCOUNT_JSON:
@@ -151,7 +127,7 @@ def get_drive_service():
     try:
         creds_info = json.loads(GOOGLE_SERVICE_ACCOUNT_JSON)
     except json.JSONDecodeError as e:
-        print(f"ERROR: GOOGLE_SERVICE_ACCOUNT_JSON nie jest poprawnym JSONem: {e}")
+        log.error(f"GOOGLE_SERVICE_ACCOUNT_JSON nie jest poprawnym JSONem: {e}")
         return None
 
     try:
@@ -161,12 +137,11 @@ def get_drive_service():
         )
         return build("drive", "v3", credentials=credentials, cache_discovery=False)
     except Exception as e:
-        print(f"ERROR: nie mogę zbudować Drive service: {e}")
+        log.error(f"nie mogę zbudować Drive service: {e}")
         return None
 
 
 def get_service_account_email() -> str:
-    """Wyciagnij email service account z JSON env var (do /health endpoint)."""
     if not GOOGLE_SERVICE_ACCOUNT_JSON:
         return ""
     try:
@@ -177,10 +152,6 @@ def get_service_account_email() -> str:
 
 
 def upload_pdf_to_drive(pdf_path: Path, folder_id: str, name: str) -> dict:
-    """
-    Upload PDF do Drive folderu i zwroc metadata.
-    Wymaga zeby service account mial Editor access do folderu.
-    """
     service = get_drive_service()
     if service is None:
         raise RuntimeError(
@@ -197,15 +168,14 @@ def upload_pdf_to_drive(pdf_path: Path, folder_id: str, name: str) -> dict:
         resumable=False,
     )
 
-    try:
-        file = service.files().create(
-            body=file_metadata,
-            media_body=media,
-            fields="id, name, webViewLink, webContentLink",
-            supportsAllDrives=True,
-        ).execute()
-    except Exception as e:
-        raise RuntimeError(f"Drive API upload failed: {e}")
+    log.info(f"Drive upload: file={name}, folder_id={folder_id}, size={pdf_path.stat().st_size}")
+    file = service.files().create(
+        body=file_metadata,
+        media_body=media,
+        fields="id, name, webViewLink, webContentLink",
+        supportsAllDrives=True,
+    ).execute()
+    log.info(f"Drive upload OK: file_id={file.get('id')}")
 
     return {
         "file_id": file.get("id"),
@@ -220,14 +190,12 @@ def upload_pdf_to_drive(pdf_path: Path, folder_id: str, name: str) -> dict:
 # ============================================================
 
 def get_deck_date(language: str) -> str:
-    """Zwraca 'Miesiąc YYYY' w odpowiednim języku (fallback EN)."""
     now = datetime.now()
     months = MONTHS.get(language.lower(), MONTHS["en"])
     return f"{months[now.month - 1]} {now.year}"
 
 
 def get_template_path(language: str) -> Path:
-    """Znajdź template per-język. Fallback PL → EN → pierwszy dostępny."""
     candidates = [
         TEMPLATES_DIR / f"sitepatron-deck-{language.upper()}-template.html",
         TEMPLATES_DIR / "sitepatron-deck-PL-template.html",
@@ -243,12 +211,6 @@ def get_template_path(language: str) -> Path:
 
 
 def render_html_to_pdf(html: str, output_path: Path) -> None:
-    """Render HTML → PDF przez Playwright Chromium (headless).
-
-    Czeka na pełne załadowanie fontów (document.fonts.ready) przed
-    renderowaniem PDF — bez tego polskie znaki (ó, ą, ę) gubią się
-    w PDF, a layout się rozjeżdża.
-    """
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".html", delete=False, encoding="utf-8"
     ) as tmp:
@@ -271,7 +233,7 @@ def render_html_to_pdf(html: str, output_path: Path) -> None:
                     timeout=10000,
                 )
             except Exception as e:
-                print(f"Warning: document.fonts wait failed: {e}")
+                log.warning(f"document.fonts wait failed: {e}")
 
             page.wait_for_timeout(5000)
 
@@ -291,7 +253,6 @@ def render_html_to_pdf(html: str, output_path: Path) -> None:
 
 
 def normalize_url(url: str) -> str:
-    """Jeśli URL nie zaczyna się od http:// ani https:// → dodaj https://."""
     if not url:
         return url
     url = url.strip()
@@ -301,7 +262,6 @@ def normalize_url(url: str) -> str:
 
 
 def apply_b2b_fallback(html: str, values: dict, language: str) -> tuple:
-    """B2B fallback - zob. v1.1."""
     b2b_filled = {f: str(values.get(f, "")).strip() for f in B2B_FIELDS}
     all_filled = all(v != "" for v in b2b_filled.values())
 
@@ -322,7 +282,6 @@ def apply_b2b_fallback(html: str, values: dict, language: str) -> tuple:
 
 
 def fill_template(html: str, values: dict) -> str:
-    """Podstaw {{KEY}} → wartości."""
     placeholders_in_template = set(re.findall(r"\{\{([A-Z0-9_]+)\}\}", html))
     placeholders_in_values = set(values.keys())
 
@@ -346,12 +305,11 @@ def fill_template(html: str, values: dict) -> str:
 
 @app.route("/health", methods=["GET"])
 def health():
-    """Status check + lista dostępnych template'ów + status Drive upload."""
     templates = sorted([f.name for f in TEMPLATES_DIR.glob("*.html")])
     drive_service = get_drive_service()
     return jsonify({
         "status": "ok",
-        "version": "1.3",
+        "version": "1.3.1",
         "templates": templates,
         "api_key_required": bool(API_KEY),
         "playwright": "ready",
@@ -364,31 +322,6 @@ def health():
 
 @app.route("/render", methods=["POST"])
 def render():
-    """
-    Render PDF z HTML template'u.
-
-    Body JSON:
-        {
-            "language": "pl",
-            "values": {
-                "DEMO_URL_A": "...",         # WYMAGANE
-                "DEMO_URL_B": "...",         # WYMAGANE
-                "B2B_QUANTITY": "...",       # OPCJONALNE
-                "B2B_PRODUCT_PL": "...",     # OPCJONALNE
-                "B2B_BUYERS_NOM": "...",     # OPCJONALNE
-                "B2B_BUYERS_GEN": "..."      # OPCJONALNE
-            },
-            "deck_date": "Kwiecień 2026",   # opcjonalne
-            "drive_folder_id": "1AbC..."    # OPCJONALNE - wgraj do Drive
-        }
-
-    Headers:
-        X-API-Key: secret  (wymagane jeśli RENDER_API_KEY ustawione)
-
-    Response:
-        - PDF binary (Content-Type: application/pdf) — jesli brak drive_folder_id
-        - JSON {file_id, name, view_url, download_url} — jesli drive_folder_id podane
-    """
     if API_KEY:
         provided_key = request.headers.get("X-API-Key", "")
         if provided_key != API_KEY:
@@ -437,24 +370,36 @@ def render():
     except Exception as e:
         return jsonify({"error": f"Render failed: {e}"}), 500
 
-    # === TRYB B: Upload do Drive (jesli klient prosi I Drive jest skonfigurowany) ===
+    # === TRYB B: Upload do Drive ===
     drive_service = get_drive_service() if drive_folder_id else None
     if drive_folder_id and drive_service is not None:
         drive_filename = f"sitepatron-deck-{language}-{datetime.now().strftime('%Y%m%d-%H%M%S')}.pdf"
         try:
             file_info = upload_pdf_to_drive(pdf_path, drive_folder_id, drive_filename)
         except Exception as e:
-            # Jesli upload padl, zwracamy PDF binary jako fallback
-            print(f"WARNING: Drive upload failed, falling back to PDF binary: {e}")
-        else:
-            # Upload OK — sprzatamy lokalny plik, zwracamy JSON
+            error_detail = f"{type(e).__name__}: {str(e)}"
+            tb_str = traceback.format_exc()
+            log.error(f"Drive upload failed: {error_detail}\n{tb_str}")
             try:
                 pdf_path.unlink()
             except Exception:
                 pass
-            return jsonify(file_info)
+            return jsonify({
+                "error": "Drive upload failed",
+                "detail": error_detail,
+                "traceback": tb_str[-3000:] if len(tb_str) > 3000 else tb_str,
+                "drive_folder_id_used": drive_folder_id,
+                "service_account_email": get_service_account_email(),
+            }), 500
 
-    # === TRYB A: Zwróć PDF binary (legacy / fallback gdy Drive niedostepny) ===
+        # Upload OK — sprzatamy lokalny plik, zwracamy JSON
+        try:
+            pdf_path.unlink()
+        except Exception:
+            pass
+        return jsonify(file_info)
+
+    # === TRYB A: Zwróć PDF binary (gdy nie podano drive_folder_id albo Drive niedostepny) ===
     download_name = f"sitepatron-deck-{language}.pdf"
     return send_file(
         str(pdf_path),
@@ -469,14 +414,14 @@ def render():
 # ============================================================
 
 if __name__ == "__main__":
-    print(f"Starting SitePatron Render Service v1.3 on port {PORT}")
-    print(f"Templates dir: {TEMPLATES_DIR}")
-    print(f"API key required: {bool(API_KEY)}")
-    print(f"Available templates: {[f.name for f in TEMPLATES_DIR.glob('*.html')]}")
-    print(f"B2B fallback languages: {sorted(B2B_FALLBACK.keys())}")
-    print(f"Drive libs available: {DRIVE_LIBS_AVAILABLE}")
+    log.info(f"Starting SitePatron Render Service v1.3.1 on port {PORT}")
+    log.info(f"Templates dir: {TEMPLATES_DIR}")
+    log.info(f"API key required: {bool(API_KEY)}")
+    log.info(f"Available templates: {[f.name for f in TEMPLATES_DIR.glob('*.html')]}")
+    log.info(f"B2B fallback languages: {sorted(B2B_FALLBACK.keys())}")
+    log.info(f"Drive libs available: {DRIVE_LIBS_AVAILABLE}")
     drive_svc = get_drive_service()
-    print(f"Drive upload enabled: {drive_svc is not None}")
+    log.info(f"Drive upload enabled: {drive_svc is not None}")
     if drive_svc is not None:
-        print(f"Service account: {get_service_account_email()}")
+        log.info(f"Service account: {get_service_account_email()}")
     app.run(host="0.0.0.0", port=PORT, debug=False)
