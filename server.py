@@ -1,6 +1,6 @@
 """
-SitePatron Deck Render Service
-==============================
+SitePatron Deck Render Service v1.1
+====================================
 
 Flask endpoint który renderuje Sosenco-style PDF z HTML template'ów.
 Apps Script wysyła POST z 6 wartościami per-klient + językiem,
@@ -9,6 +9,13 @@ serwer zwraca PDF jako binary.
 Endpoints:
     GET  /health          — status + lista dostępnych template'ów
     POST /render          — render PDF (wymaga X-API-Key)
+
+ZMIANY v1.1:
+- Fallback B2B: jeśli wszystkie 4 pola B2B (B2B_QUANTITY, B2B_PRODUCT_PL,
+  B2B_BUYERS_NOM, B2B_BUYERS_GEN) są puste/brakujące → endpoint
+  podmienia 2 fragmenty HTML na uniwersalny tekst z kalkulatorem
+  oszczędności (400 EUR / 1000 EUR vs prowizja Amazon 15%).
+  Jeśli wszystkie 4 wypełnione → normalna substytucja jak v1.0.
 
 Deploy:
     docker build -t sitepatron-render .
@@ -57,6 +64,50 @@ MONTHS = {
            "July", "August", "September", "October", "November", "December"],
     "de": ["Januar", "Februar", "März", "April", "Mai", "Juni",
            "Juli", "August", "September", "Oktober", "November", "Dezember"],
+}
+
+# ============================================================
+# B2B FALLBACK — gdy klient nie wypełnił 4 pól B2B
+# ============================================================
+
+B2B_FIELDS = ["B2B_QUANTITY", "B2B_PRODUCT_PL", "B2B_BUYERS_NOM", "B2B_BUYERS_GEN"]
+
+# Per-język fragmenty do podmiany.
+# - bullet_old: oryginalny bullet w sekcji "Co Ci to praktycznie daje" (slide 10)
+# - bullet_new: uniwersalna wersja bez {{B2B_BUYERS_NOM}}
+# - example_old: cały paragraf example-box (slide 10)
+# - example_new: nowy paragraf z kalkulatorem oszczędności
+B2B_FALLBACK = {
+    "pl": {
+        "bullet_old": (
+            'Klienci hurtowi ({{B2B_BUYERS_NOM}}) piszą bezpośrednio do Ciebie'
+        ),
+        "bullet_new": (
+            'Klienci hurtowi (wspólnoty mieszkaniowe, hotele, biura, firmy z wieloma '
+            'oddziałami) piszą bezpośrednio do Ciebie'
+        ),
+        "example_old": (
+            'Klient zamawia komplet {{B2B_QUANTITY}} {{B2B_PRODUCT_PL}} (np. dla '
+            '{{B2B_BUYERS_GEN}}). <strong>Na Amazon:</strong> kupuje sztuka po sztuce, '
+            'każda obciążona 15% prowizją Amazon + ograniczenia platformy. '
+            '<strong>Bezpośrednio od Patrona przez Stronę:</strong> jedna faktura B2B '
+            'między firmami, bez prowizji, możliwość negocjacji ceny przy większej '
+            'ilości. Czysty zysk + nowy kontakt biznesowy w portfolio.'
+        ),
+        "example_new": (
+            'Klient firmowy zamawia bezpośrednio przez Stronę zamiast przez Amazon '
+            '(np. wspólnota mieszkaniowa, biuro, hotel, firma z oddziałami). '
+            '<strong>Na Amazon:</strong> każda sztuka obciążona ~15% prowizją + '
+            'ograniczenia platformy. <strong>Bezpośrednio od Patrona:</strong> jedna '
+            'faktura B2B między firmami, bez prowizji, możliwość negocjacji ceny. '
+            '<strong>Liczby:</strong> zamówienie za 400 EUR = ~60 EUR oszczędności na '
+            'prowizji Amazon — to pokrywa cały miesiąc Site Patron. Zamówienie za '
+            '1000 EUR = ~150 EUR oszczędności = 2,5 miesiąca abonamentu z jednego '
+            'zamówienia. Plus stały klient B2B w Twoim portfolio.'
+        ),
+    },
+    # EN / DE — do dodania gdy będą template'y w tych językach.
+    # Na razie EN/DE template'y nie istnieją, więc fallback EN/DE też nie jest potrzebny.
 }
 
 
@@ -116,6 +167,56 @@ def render_html_to_pdf(html: str, output_path: Path) -> None:
             pass
 
 
+def apply_b2b_fallback(html: str, values: dict, language: str) -> tuple:
+    """
+    Jeśli WSZYSTKIE 4 pola B2B są puste/brakujące → podmienia 2 fragmenty HTML
+    na uniwersalny tekst (z kalkulatorem oszczędności).
+
+    Jeśli choć jedno z 4 jest wypełnione → nic nie robi (zwraca HTML i values
+    bez zmian, ale uzupełnia brakujące B2B_* pustym stringiem żeby walidacja
+    fill_template przeszła).
+
+    Returns: (modified_html, modified_values)
+    """
+    # Sprawdź czy WSZYSTKIE 4 są niepuste
+    b2b_filled = {f: str(values.get(f, "")).strip() for f in B2B_FIELDS}
+    all_empty = all(v == "" for v in b2b_filled.values())
+    all_filled = all(v != "" for v in b2b_filled.values())
+
+    new_values = dict(values)
+
+    if all_empty:
+        # Tryb fallback — podmień bloki HTML
+        fallback = B2B_FALLBACK.get(language, B2B_FALLBACK["pl"])
+
+        if fallback["bullet_old"] in html:
+            html = html.replace(fallback["bullet_old"], fallback["bullet_new"])
+        if fallback["example_old"] in html:
+            html = html.replace(fallback["example_old"], fallback["example_new"])
+
+        # Po replace HTML nie zawiera już {{B2B_*}} — fill_template będzie OK.
+        # Ale dla pewności wrzucamy puste stringi do values.
+        for f in B2B_FIELDS:
+            new_values[f] = ""
+    elif all_filled:
+        # Tryb normalny — wszystko OK, fill_template podstawi 4 wartości
+        pass
+    else:
+        # Tryb mieszany — niektóre wypełnione, inne nie. Też używamy fallback,
+        # bo inaczej tekst będzie połamany ("Klient zamawia komplet  szyldów").
+        fallback = B2B_FALLBACK.get(language, B2B_FALLBACK["pl"])
+
+        if fallback["bullet_old"] in html:
+            html = html.replace(fallback["bullet_old"], fallback["bullet_new"])
+        if fallback["example_old"] in html:
+            html = html.replace(fallback["example_old"], fallback["example_new"])
+
+        for f in B2B_FIELDS:
+            new_values[f] = ""
+
+    return html, new_values
+
+
 def fill_template(html: str, values: dict) -> str:
     """Podstaw {{KEY}} → wartości. Walidacja: wszystkie placeholdery podane."""
     placeholders_in_template = set(re.findall(r"\{\{([A-Z0-9_]+)\}\}", html))
@@ -145,9 +246,11 @@ def health():
     templates = sorted([f.name for f in TEMPLATES_DIR.glob("*.html")])
     return jsonify({
         "status": "ok",
+        "version": "1.1",
         "templates": templates,
         "api_key_required": bool(API_KEY),
         "playwright": "ready",
+        "b2b_fallback_languages": sorted(B2B_FALLBACK.keys()),
     })
 
 
@@ -159,13 +262,13 @@ def render():
     Body JSON:
         {
             "language": "pl",          # pl/en/de (fallback PL)
-            "values": {                # per-klient (6 placeholderów)
-                "DEMO_URL_A": "...",
-                "DEMO_URL_B": "...",
-                "B2B_QUANTITY": "...",
-                "B2B_PRODUCT_PL": "...",
-                "B2B_BUYERS_NOM": "...",
-                "B2B_BUYERS_GEN": "..."
+            "values": {                # per-klient
+                "DEMO_URL_A": "...",         # WYMAGANE
+                "DEMO_URL_B": "...",         # WYMAGANE
+                "B2B_QUANTITY": "...",       # OPCJONALNE (jeśli puste → fallback)
+                "B2B_PRODUCT_PL": "...",     # OPCJONALNE
+                "B2B_BUYERS_NOM": "...",     # OPCJONALNE
+                "B2B_BUYERS_GEN": "..."      # OPCJONALNE
             },
             "deck_date": "Kwiecień 2026"  # opcjonalne (override auto)
         }
@@ -204,6 +307,9 @@ def render():
     except Exception as e:
         return jsonify({"error": f"Template error: {e}"}), 500
 
+    # Apply B2B fallback (jeśli pola B2B puste → podmień bloki HTML)
+    html, final_values = apply_b2b_fallback(html, final_values, language)
+
     # Podstaw placeholdery
     try:
         filled_html = fill_template(html, final_values)
@@ -234,8 +340,9 @@ def render():
 # ============================================================
 
 if __name__ == "__main__":
-    print(f"Starting SitePatron Render Service on port {PORT}")
+    print(f"Starting SitePatron Render Service v1.1 on port {PORT}")
     print(f"Templates dir: {TEMPLATES_DIR}")
     print(f"API key required: {bool(API_KEY)}")
     print(f"Available templates: {[f.name for f in TEMPLATES_DIR.glob('*.html')]}")
+    print(f"B2B fallback languages: {sorted(B2B_FALLBACK.keys())}")
     app.run(host="0.0.0.0", port=PORT, debug=False)
