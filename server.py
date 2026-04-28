@@ -1,5 +1,5 @@
 """
-SitePatron Deck Render Service v1.1
+SitePatron Deck Render Service v1.2
 ====================================
 
 Flask endpoint który renderuje Sosenco-style PDF z HTML template'ów.
@@ -9,6 +9,14 @@ serwer zwraca PDF jako binary.
 Endpoints:
     GET  /health          — status + lista dostępnych template'ów
     POST /render          — render PDF (wymaga X-API-Key)
+
+ZMIANY v1.2:
+- Fix polskich znaków diakrytycznych (ó, ą, ę): czekamy na
+  document.fonts.ready PLUS 5s timeout zamiast 2s — Google Fonts
+  z `display=swap` nie zdaza sie zaladowac przed PDF render i
+  Chromium uzywa fallback Georgia bez polskich glyphow.
+- Normalizacja URL DEMO_URL_A/DEMO_URL_B: jesli brak schemy http(s),
+  dodajemy `https://` automatycznie.
 
 ZMIANY v1.1:
 - Fallback B2B: jeśli wszystkie 4 pola B2B (B2B_QUANTITY, B2B_PRODUCT_PL,
@@ -135,7 +143,12 @@ def get_template_path(language: str) -> Path:
 
 
 def render_html_to_pdf(html: str, output_path: Path) -> None:
-    """Render HTML → PDF przez Playwright Chromium (headless)."""
+    """Render HTML → PDF przez Playwright Chromium (headless).
+
+    Czeka na pełne załadowanie fontów (document.fonts.ready) przed
+    renderowaniem PDF — bez tego polskie znaki (ó, ą, ę) gubią się
+    w PDF, a layout się rozjeżdża (czcionki ładują się PO renderze).
+    """
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".html", delete=False, encoding="utf-8"
     ) as tmp:
@@ -151,7 +164,22 @@ def render_html_to_pdf(html: str, output_path: Path) -> None:
                 wait_until="networkidle",
                 timeout=30000,
             )
-            page.wait_for_timeout(2000)  # czekaj na fonts CDN
+            # KRYTYCZNE: czekaj aż wszystkie fonty się załadują (Google Fonts CDN)
+            # Bez tego polskie znaki diakrytyczne znikają z PDF.
+            try:
+                page.evaluate("() => document.fonts.ready")
+                page.wait_for_function(
+                    "() => document.fonts.status === 'loaded'",
+                    timeout=10000,
+                )
+            except Exception as e:
+                # Nie blokuj renderu jeśli fonts API zawiedzie — i tak czekamy 5s niżej
+                print(f"Warning: document.fonts wait failed: {e}")
+
+            # Dodatkowy bufor czasu (5s) na pewność że Inter + Playfair Display
+            # są w pełni rasteryzowane przed PDF generation.
+            page.wait_for_timeout(5000)
+
             page.pdf(
                 path=str(output_path),
                 width="1280px",
@@ -165,6 +193,16 @@ def render_html_to_pdf(html: str, output_path: Path) -> None:
             tmp_path.unlink()
         except Exception:
             pass
+
+
+def normalize_url(url: str) -> str:
+    """Jeśli URL nie zaczyna się od http:// ani https:// → dodaj https://."""
+    if not url:
+        return url
+    url = url.strip()
+    if url.startswith("http://") or url.startswith("https://"):
+        return url
+    return "https://" + url
 
 
 def apply_b2b_fallback(html: str, values: dict, language: str) -> tuple:
@@ -246,7 +284,7 @@ def health():
     templates = sorted([f.name for f in TEMPLATES_DIR.glob("*.html")])
     return jsonify({
         "status": "ok",
-        "version": "1.1",
+        "version": "1.2",
         "templates": templates,
         "api_key_required": bool(API_KEY),
         "playwright": "ready",
@@ -300,6 +338,11 @@ def render():
         str(deck_date_override) if deck_date_override else get_deck_date(language)
     )
 
+    # Normalizuj URL DEMO_URL_A/B: dodaj https:// jeśli brak schemy
+    for url_key in ("DEMO_URL_A", "DEMO_URL_B"):
+        if url_key in final_values and final_values[url_key]:
+            final_values[url_key] = normalize_url(str(final_values[url_key]))
+
     # Wczytaj template
     try:
         template_path = get_template_path(language)
@@ -340,7 +383,7 @@ def render():
 # ============================================================
 
 if __name__ == "__main__":
-    print(f"Starting SitePatron Render Service v1.1 on port {PORT}")
+    print(f"Starting SitePatron Render Service v1.2 on port {PORT}")
     print(f"Templates dir: {TEMPLATES_DIR}")
     print(f"API key required: {bool(API_KEY)}")
     print(f"Available templates: {[f.name for f in TEMPLATES_DIR.glob('*.html')]}")
