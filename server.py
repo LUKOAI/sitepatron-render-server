@@ -1,11 +1,16 @@
 """
-SitePatron Deck Render Service v1.3.2
+SitePatron Deck Render Service v1.3.3
 ======================================
 
 Flask endpoint który renderuje Sosenco-style PDF z HTML template'ów.
 Apps Script wysyła POST z wartościami per-klient + językiem,
 serwer zwraca PDF jako binary LUB wgrywa do Drive (jeśli klient
 prześle drive_folder_id).
+
+ZMIANY v1.3.3:
+- B2B_FALLBACK rozszerzony o klucze "en" i "de" (do tej pory tylko "pl").
+  Teraz wszystkie 3 jezyki maja pelny fallback gdy fields B2B w arkuszu sa puste.
+- Wersja bumped na 1.3.3 w /health.
 
 ZMIANY v1.3.2:
 - Klient moze przeslac `pdf_filename` w payload (bez .pdf na koncu lub z).
@@ -83,6 +88,10 @@ MONTHS = {
 
 # ============================================================
 # B2B FALLBACK
+#
+# bullet_old/example_old MUSZA dokladnie pasowac do tekstu w odpowiednim
+# template HTML (sitepatron-deck-{LANG}-template.html). Jesli zmienisz tekst
+# w template, zaktualizuj tutaj odpowiednio.
 # ============================================================
 
 B2B_FIELDS = ["B2B_QUANTITY", "B2B_PRODUCT_PL", "B2B_BUYERS_NOM", "B2B_BUYERS_GEN"]
@@ -114,6 +123,64 @@ B2B_FALLBACK = {
             'prowizji Amazon — to pokrywa cały miesiąc Site Patron. Zamówienie za '
             '1000 EUR = ~150 EUR oszczędności = 2,5 miesiąca abonamentu z jednego '
             'zamówienia. Plus stały klient B2B w Twoim portfolio.'
+        ),
+    },
+    "en": {
+        "bullet_old": (
+            'Wholesale customers ({{B2B_BUYERS_NOM}}) contact you directly'
+        ),
+        "bullet_new": (
+            'Wholesale customers (housing associations, hotels, offices, companies '
+            'with multiple branches) contact you directly'
+        ),
+        "example_old": (
+            'A customer orders a set of {{B2B_QUANTITY}} {{B2B_PRODUCT_PL}} (e.g. for '
+            '{{B2B_BUYERS_GEN}}). <strong>On Amazon:</strong> they buy unit by unit, '
+            'each subject to Amazon\'s 15% commission + platform restrictions. '
+            '<strong>Directly from the Patron via the Site:</strong> one B2B invoice '
+            'between companies, no commission, room to negotiate price for larger '
+            'volumes. Pure profit + a new business contact in your portfolio.'
+        ),
+        "example_new": (
+            'A business customer orders directly through the Site instead of through '
+            'Amazon (e.g. housing association, office, hotel, company with branches). '
+            '<strong>On Amazon:</strong> each unit subject to ~15% commission + '
+            'platform restrictions. <strong>Directly from the Patron:</strong> one '
+            'B2B invoice between companies, no commission, room to negotiate price. '
+            '<strong>The numbers:</strong> a 400 EUR order = ~60 EUR savings on '
+            'Amazon commission — that covers a whole month of Site Patron. A 1,000 '
+            'EUR order = ~150 EUR savings = 2.5 months of subscription from a single '
+            'order. Plus a permanent B2B customer in your portfolio.'
+        ),
+    },
+    "de": {
+        "bullet_old": (
+            'Großkunden ({{B2B_BUYERS_NOM}}) wenden sich direkt an Sie'
+        ),
+        "bullet_new": (
+            'Großkunden (Wohnungseigentümergemeinschaften, Hotels, Büros, Unternehmen '
+            'mit mehreren Niederlassungen) wenden sich direkt an Sie'
+        ),
+        "example_old": (
+            'Ein Kunde bestellt einen Satz {{B2B_QUANTITY}} {{B2B_PRODUCT_PL}} (z.B. '
+            'für {{B2B_BUYERS_GEN}}). <strong>Auf Amazon:</strong> er kauft Stück für '
+            'Stück, jedes mit 15% Amazon-Provision + Plattformeinschränkungen belastet. '
+            '<strong>Direkt vom Patron über die Website:</strong> eine B2B-Rechnung '
+            'zwischen Unternehmen, ohne Provision, Verhandlungsspielraum beim Preis '
+            'für größere Mengen. Reiner Gewinn + ein neuer Geschäftskontakt in Ihrem '
+            'Portfolio.'
+        ),
+        "example_new": (
+            'Ein Geschäftskunde bestellt direkt über die Website statt über Amazon '
+            '(z.B. Wohnungseigentümergemeinschaft, Büro, Hotel, Unternehmen mit '
+            'mehreren Niederlassungen). <strong>Auf Amazon:</strong> jedes Stück mit '
+            '~15% Provision belastet + Plattformeinschränkungen. <strong>Direkt vom '
+            'Patron:</strong> eine B2B-Rechnung zwischen Unternehmen, ohne Provision, '
+            'Verhandlungsspielraum beim Preis. <strong>Die Zahlen:</strong> eine '
+            'Bestellung über 400 EUR = ~60 EUR Ersparnis bei der Amazon-Provision — '
+            'das deckt einen ganzen Monat Site Patron ab. Eine Bestellung über 1.000 '
+            'EUR = ~150 EUR Ersparnis = 2,5 Monate Abonnement aus einer einzigen '
+            'Bestellung. Plus ein dauerhafter B2B-Kunde in Ihrem Portfolio.'
         ),
     },
 }
@@ -333,7 +400,7 @@ def health():
     drive_service = get_drive_service()
     return jsonify({
         "status": "ok",
-        "version": "1.3.2",
+        "version": "1.3.3",
         "templates": templates,
         "api_key_required": bool(API_KEY),
         "playwright": "ready",
@@ -449,7 +516,7 @@ def render():
 # ============================================================
 
 if __name__ == "__main__":
-    log.info(f"Starting SitePatron Render Service v1.3.2 on port {PORT}")
+    log.info(f"Starting SitePatron Render Service v1.3.3 on port {PORT}")
     log.info(f"Templates dir: {TEMPLATES_DIR}")
     log.info(f"API key required: {bool(API_KEY)}")
     log.info(f"Available templates: {[f.name for f in TEMPLATES_DIR.glob('*.html')]}")
