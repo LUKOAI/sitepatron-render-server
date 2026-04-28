@@ -1,5 +1,5 @@
 """
-SitePatron Deck Render Service v1.3.1
+SitePatron Deck Render Service v1.3.2
 ======================================
 
 Flask endpoint który renderuje Sosenco-style PDF z HTML template'ów.
@@ -7,11 +7,18 @@ Apps Script wysyła POST z wartościami per-klient + językiem,
 serwer zwraca PDF jako binary LUB wgrywa do Drive (jeśli klient
 prześle drive_folder_id).
 
+ZMIANY v1.3.2:
+- Klient moze przeslac `pdf_filename` w payload (bez .pdf na koncu lub z).
+  Endpoint uzyje go jako nazwe pliku w Drive. Jesli nie podano,
+  fallback na auto-generowana nazwe.
+
 ZMIANY v1.3.1:
-- Drive upload error: zamiast cichego fallback do PDF binary,
-  endpoint zwraca JSON z pełnym traceback errora. Apps Script
-  zobaczy wtedy co poszło nie tak (np. Drive quota, perms, etc).
-- Logi: app.logger zamiast print() (gunicorn buforuje stdout).
+- Drive upload error: zwraca JSON z traceback zamiast cichego fallback.
+- Logging do stderr (gunicorn poprawnie loguje).
+
+ZMIANY v1.3:
+- Drive Upload Mode: jesli klient przesle drive_folder_id, endpoint
+  wgrywa PDF do Drive przez service account, zwraca JSON z file_id.
 
 Endpoints:
     GET  /health          — status + lista dostępnych template'ów
@@ -31,7 +38,6 @@ from pathlib import Path
 from flask import Flask, request, send_file, jsonify
 from playwright.sync_api import sync_playwright
 
-# Drive upload (opcjonalny - tylko gdy GOOGLE_SERVICE_ACCOUNT_JSON jest ustawione)
 try:
     from google.oauth2 import service_account
     from googleapiclient.discovery import build
@@ -42,7 +48,6 @@ except ImportError:
 
 app = Flask(__name__)
 
-# Logging do stderr (gunicorn poprawnie loguje stderr do Railway logs)
 logging.basicConfig(
     stream=sys.stderr,
     level=logging.INFO,
@@ -185,6 +190,25 @@ def upload_pdf_to_drive(pdf_path: Path, folder_id: str, name: str) -> dict:
     }
 
 
+def sanitize_filename(name: str) -> str:
+    """Sanityzuj nazwe pliku - usun znaki ktore moga sprawic problem w Drive/OS."""
+    if not name:
+        return "untitled"
+    # Usun control chars i znaki ktore Drive moze odrzucic
+    name = re.sub(r'[\x00-\x1f\x7f<>:"/\\|?*]', '_', name)
+    name = name.strip(' .')  # Drive nie lubi plikow ktore zaczynaja/koncza sie kropka lub spacja
+    if not name:
+        return "untitled"
+    # Limit dlugosci
+    if len(name) > 200:
+        # Zachowaj rozszerzenie
+        if name.lower().endswith('.pdf'):
+            name = name[:196] + '.pdf'
+        else:
+            name = name[:200]
+    return name
+
+
 # ============================================================
 # RENDERING
 # ============================================================
@@ -309,7 +333,7 @@ def health():
     drive_service = get_drive_service()
     return jsonify({
         "status": "ok",
-        "version": "1.3.1",
+        "version": "1.3.2",
         "templates": templates,
         "api_key_required": bool(API_KEY),
         "playwright": "ready",
@@ -335,6 +359,7 @@ def render():
     client_values = payload.get("values", {}) or {}
     deck_date_override = payload.get("deck_date")
     drive_folder_id = payload.get("drive_folder_id", "")
+    custom_pdf_filename = str(payload.get("pdf_filename", "")).strip()
 
     final_values = dict(DEFAULT_VALUES)
     final_values.update(client_values)
@@ -362,8 +387,7 @@ def render():
     output_dir = Path(tempfile.gettempdir()) / "sitepatron-pdfs"
     output_dir.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
-    pdf_filename = f"deck-{language}-{timestamp}.pdf"
-    pdf_path = output_dir / pdf_filename
+    pdf_path = output_dir / f"deck-{language}-{timestamp}.pdf"
 
     try:
         render_html_to_pdf(filled_html, pdf_path)
@@ -373,7 +397,16 @@ def render():
     # === TRYB B: Upload do Drive ===
     drive_service = get_drive_service() if drive_folder_id else None
     if drive_folder_id and drive_service is not None:
-        drive_filename = f"sitepatron-deck-{language}-{datetime.now().strftime('%Y%m%d-%H%M%S')}.pdf"
+        # Nazwa pliku w Drive: priorytet (1) klient, (2) auto
+        if custom_pdf_filename:
+            drive_filename = custom_pdf_filename
+            if not drive_filename.lower().endswith(".pdf"):
+                drive_filename += ".pdf"
+        else:
+            drive_filename = f"sitepatron-{language}-{datetime.now().strftime('%Y%m%d-%H%M%S')}.pdf"
+
+        drive_filename = sanitize_filename(drive_filename)
+
         try:
             file_info = upload_pdf_to_drive(pdf_path, drive_folder_id, drive_filename)
         except Exception as e:
@@ -392,15 +425,17 @@ def render():
                 "service_account_email": get_service_account_email(),
             }), 500
 
-        # Upload OK — sprzatamy lokalny plik, zwracamy JSON
         try:
             pdf_path.unlink()
         except Exception:
             pass
         return jsonify(file_info)
 
-    # === TRYB A: Zwróć PDF binary (gdy nie podano drive_folder_id albo Drive niedostepny) ===
-    download_name = f"sitepatron-deck-{language}.pdf"
+    # === TRYB A: Zwróć PDF binary ===
+    download_name = custom_pdf_filename or f"sitepatron-{language}.pdf"
+    if not download_name.lower().endswith(".pdf"):
+        download_name += ".pdf"
+    download_name = sanitize_filename(download_name)
     return send_file(
         str(pdf_path),
         mimetype="application/pdf",
@@ -414,7 +449,7 @@ def render():
 # ============================================================
 
 if __name__ == "__main__":
-    log.info(f"Starting SitePatron Render Service v1.3.1 on port {PORT}")
+    log.info(f"Starting SitePatron Render Service v1.3.2 on port {PORT}")
     log.info(f"Templates dir: {TEMPLATES_DIR}")
     log.info(f"API key required: {bool(API_KEY)}")
     log.info(f"Available templates: {[f.name for f in TEMPLATES_DIR.glob('*.html')]}")
