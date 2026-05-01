@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SitePatron Deck v2 — Sosenco-style</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&display=block" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F8F6F1; --cream-bar: #EDE7DC; --bg: #E5DFD0;
+    --anthrazit: #1A2A3A; --anthrazit-light: #2A3F58;
+    --brass: #C9A961; --brass-light: #E6D7AF; --brass-bg: #F4EDD9;
+    --text: #1A2A3A; --gray: #5F6978; --gray-light: #9aa3b0;
+    --red: #C43C3C; --green: #4C915F; --blue: #6482B4; --white: #FFFFFF;
+    --shadow: 0 2px 6px rgba(26, 42, 58, 0.06);
+    --shadow-strong: 0 6px 24px rgba(26, 42, 58, 0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: auto; }
+  body { background: var(--bg); font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--text); line-height: 1.5; padding: 30px 0; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  .deck { display: flex; flex-direction: column; align-items: center; gap: 30px; }
+  .slide { width: 1280px; height: 905px; background: var(--cream); position: relative; overflow: hidden; box-shadow: var(--shadow-strong); page-break-after: always; flex-shrink: 0; }
+  .header-bar { position: absolute; top: 0; left: 0; right: 0; height: 56px; background: var(--cream-bar); display: flex; align-items: center; justify-content: space-between; padding: 0 60px; }
+  .header-label { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--brass); text-transform: uppercase; }
+  .luko-tag { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--brass); }
+  .slide-content { padding: 86px 60px 56px; height: 100%; display: flex; flex-direction: column; }
+  .h1 { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 60px; line-height: 1.1; color: var(--anthrazit); margin-bottom: 18px; letter-spacing: -0.8px; }
+  .h1.smaller { font-size: 50px; }
+  .h1-line { height: 2px; background: var(--brass); margin-bottom: 24px; width: 100%; }
+  .subtitle { font-size: 19px; line-height: 1.55; color: var(--gray); margin-bottom: 28px; max-width: 1100px; }
+  .section-title { font-size: 19px; font-weight: 600; color: var(--anthrazit); margin-bottom: 14px; }
+  .page-num { position: absolute; bottom: 22px; right: 60px; font-size: 12px; color: var(--gray-light); letter-spacing: 0.5px; z-index: 5; }
+  .check { color: var(--green); font-weight: 700; font-size: 18px; }
+  .x-mark { color: var(--red); font-weight: 700; font-size: 20px; }
+  .plus-mark { color: var(--brass); font-weight: 700; font-size: 20px; }
+  .cover { background: var(--cream); padding: 70px 90px 90px; display: flex; flex-direction: column; justify-content: space-between; }
+  .cover-luko { position: absolute; top: 60px; right: 90px; font-size: 14px; font-weight: 700; letter-spacing: 2px; color: var(--brass); }
+  .cover-title { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 96px; line-height: 1.05; color: var(--anthrazit); letter-spacing: -2.5px; margin-top: 60px; }
+  .cover-meta { margin-top: 40px; }
+  .cover-subtitle { font-size: 28px; color: var(--brass); font-weight: 600; margin-bottom: 16px; letter-spacing: 0.3px; }
+  .cover-desc { font-size: 22px; line-height: 1.55; color: var(--anthrazit); max-width: 800px; }
+  .cover-footer-block { border-top: 2px solid var(--brass); padding-top: 16px; width: 360px; }
+  .cover-brand { font-size: 14px; font-weight: 700; color: var(--anthrazit); letter-spacing: 6px; word-spacing: 8px; margin-bottom: 7px; }
+  .cover-meta-line { font-size: 11px; color: var(--gray); letter-spacing: 5px; word-spacing: 8px; text-transform: uppercase; }
+  .benefits-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 40px; margin-bottom: 34px; }
+  .benefit-item { display: flex; gap: 14px; align-items: flex-start; font-size: 17px; line-height: 1.5; }
+  .benefit-item .icon { color: var(--green); font-weight: 700; flex-shrink: 0; font-size: 18px; }
+  .benefit-item strong { color: var(--anthrazit); font-weight: 600; }
+  .demos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 18px; }
+  .demo-box { background: white; border-radius: 8px; padding: 22px 28px; border: 2px solid; box-shadow: var(--shadow); }
+  .demo-box.yellow { border-color: var(--brass); }
+  .demo-box.blue { border-color: var(--blue); }
+  .demo-box .label { font-size: 14px; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 10px; }
+  .demo-box.yellow .label { color: var(--brass); }
+  .demo-box.blue .label { color: var(--blue); }
+  .demo-box .url { display: block; text-decoration: none; font-size: 21px; font-weight: 700; color: var(--anthrazit); margin-bottom: 10px; font-family: 'Inter', monospace; }
+  .demo-box .url:hover { color: var(--blue); }
+  .demo-box .desc { font-size: 15px; color: var(--gray); line-height: 1.5; }
+  .footer-note { font-size: 14.5px; color: var(--gray); font-style: italic; margin-top: auto; }
+  .problems-list { display: flex; flex-direction: column; gap: 22px; margin-top: 8px; }
+  .problem-item { display: flex; gap: 20px; align-items: flex-start; }
+  .problem-item .icon { color: var(--red); font-weight: 700; font-size: 24px; flex-shrink: 0; line-height: 1; margin-top: 4px; }
+  .problem-item .text { flex: 1; font-size: 17px; line-height: 1.55; color: var(--gray); }
+  .problem-item .text strong { color: var(--anthrazit); font-weight: 700; font-size: 18px; }
+  .solution-box { background: var(--anthrazit); color: white; padding: 36px 42px; border-radius: 8px; margin-bottom: 36px; position: relative; }
+  .solution-box .lead { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 32px; line-height: 1.3; margin-bottom: 16px; color: white; }
+  .solution-box .lead-detail { font-size: 18px; line-height: 1.6; color: rgba(255,255,255,0.85); }
+  .solution-box .star-mark { color: var(--brass); font-size: 32px; margin-right: 8px; }
+  .steps-grid { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 14px; align-items: stretch; }
+  .step-card { background: white; border-radius: 8px; padding: 26px 22px; text-align: center; border-top: 3px solid var(--brass); box-shadow: var(--shadow); }
+  .step-card .num { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 46px; color: var(--brass); line-height: 1; margin-bottom: 12px; }
+  .step-card .title { font-size: 18px; font-weight: 700; color: var(--anthrazit); margin-bottom: 8px; }
+  .step-card .desc { font-size: 14px; color: var(--gray); line-height: 1.5; }
+  .step-arrow { align-self: center; color: var(--brass); font-size: 32px; font-weight: 300; }
+  .numbers-hero { text-align: center; margin: 18px 0 38px; }
+  .big-number { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 140px; line-height: 1; color: var(--anthrazit); letter-spacing: -4px; margin-bottom: 12px; }
+  .numbers-subtitle { font-size: 19px; color: var(--gray); max-width: 900px; margin: 0 auto; line-height: 1.5; }
+  .numbers-subtitle strong { color: var(--anthrazit); }
+  .bar-chart { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 80px; align-items: end; height: 240px; padding: 0 100px; margin-bottom: 32px; }
+  .bar-col { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+  .bar-value { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 28px; color: var(--anthrazit); margin-bottom: 10px; }
+  .bar { width: 100%; border-radius: 4px 4px 0 0; box-shadow: var(--shadow); }
+  .bar.gray { background: var(--gray); }
+  .bar.brass { background: var(--brass); }
+  .bar-label { font-size: 15px; color: var(--gray); margin-top: 14px; text-align: center; font-weight: 500; }
+  .why-text { font-size: 16px; color: var(--gray); line-height: 1.55; margin-top: auto; }
+  .differentiator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 26px; }
+  .col-light { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .col-dark { background: var(--anthrazit); color: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .col-title { font-size: 16px; font-weight: 600; color: var(--gray); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #E5E0D5; }
+  .col-dark .col-title { color: var(--brass); border-bottom: 1px solid rgba(201,169,97,0.3); }
+  .channel-list { display: flex; flex-direction: column; gap: 14px; }
+  .channel-item { display: flex; gap: 14px; align-items: flex-start; font-size: 16px; line-height: 1.45; }
+  .channel-item .x-mark { font-size: 18px; line-height: 1.4; }
+  .channel-item strong { color: var(--anthrazit); font-weight: 600; }
+  .price-hero { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 64px; color: var(--brass); line-height: 1; margin: 10px 0 6px; }
+  .price-sub { font-size: 17px; color: rgba(255,255,255,0.75); margin-bottom: 22px; }
+  .col-dark .channel-item .check { color: var(--brass); }
+  .col-dark .channel-item { color: rgba(255,255,255,0.92); }
+  .col-dark .channel-item strong { color: white; }
+  .footer-text { font-size: 15px; color: var(--gray); line-height: 1.55; margin-top: auto; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-bottom: 18px; }
+  .compare-card { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .compare-card.brass-top { border-top: 4px solid var(--brass); }
+  .compare-card.gray-top { border-top: 4px solid var(--gray-light); background: #F5F2EB; }
+  .compare-card .label { font-size: 14px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .compare-card.brass-top .label { color: var(--brass); }
+  .compare-card.gray-top .label { color: var(--gray); }
+  .compare-card .price { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 30px; color: var(--anthrazit); margin-bottom: 18px; }
+  .compare-card .price.muted { color: var(--gray); font-size: 21px; font-style: italic; font-weight: 500; }
+  .compare-list { display: flex; flex-direction: column; gap: 11px; }
+  .compare-list-item { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.45; }
+  .compare-list-item .icon { flex-shrink: 0; width: 18px; text-align: center; }
+  .korzysci-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 8px; }
+  .korzysc-card { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); border-left: 4px solid var(--brass); display: flex; gap: 20px; align-items: flex-start; }
+  .korzysc-num { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 50px; color: var(--brass); line-height: 1; flex-shrink: 0; width: 60px; }
+  .korzysc-content .title { font-size: 19px; font-weight: 700; color: var(--anthrazit); margin-bottom: 8px; }
+  .korzysc-content .desc { font-size: 15px; color: var(--gray); line-height: 1.5; }
+  .bonus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-bottom: 24px; }
+  .bonus-col { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .bonus-col .col-title { font-size: 15px; font-weight: 700; color: var(--brass); letter-spacing: 0.5px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #E5E0D5; text-transform: uppercase; }
+  .bonus-list { display: flex; flex-direction: column; gap: 13px; }
+  .bonus-list-item { display: flex; gap: 12px; font-size: 16px; line-height: 1.45; color: var(--anthrazit); }
+  .bonus-list-item::before { content: "•"; color: var(--brass); font-weight: 700; flex-shrink: 0; font-size: 18px; }
+  .example-box { background: var(--brass-bg); border-left: 4px solid var(--brass); padding: 22px 28px; border-radius: 4px; }
+  .example-label { font-size: 13px; font-weight: 700; letter-spacing: 1.4px; color: var(--brass); margin-bottom: 10px; }
+  .example-text { font-size: 15.5px; line-height: 1.55; color: var(--anthrazit); }
+  .exclusivity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-bottom: 18px; }
+  .exclusivity-col { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .exclusivity-col.before-state { background: #F5F2EB; opacity: 0.85; }
+  .exclusivity-col .state-label { font-size: 14px; font-weight: 700; letter-spacing: 0.6px; margin-bottom: 8px; }
+  .exclusivity-col.before-state .state-label { color: var(--gray); }
+  .exclusivity-col.after-state .state-label { color: var(--brass); }
+  .exclusivity-col .state-desc { font-size: 15px; color: var(--gray); line-height: 1.5; margin-bottom: 18px; }
+  .brand-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .brand-chip { background: white; border: 1px solid #E5E0D5; padding: 10px 14px; border-radius: 4px; font-size: 14px; color: var(--gray); text-align: center; }
+  .brand-chip.others { background: transparent; color: var(--gray-light); font-style: italic; border: 1px dashed #D5D0C0; }
+  .exclusive-banner { background: var(--anthrazit); color: white; padding: 28px 32px; border-radius: 6px; text-align: center; margin-top: 14px; }
+  .exclusive-banner .text { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 28px; color: var(--brass); letter-spacing: 0.8px; }
+  .legal-box { background: white; border-radius: 8px; padding: 32px 38px; box-shadow: var(--shadow); border-left: 5px solid var(--brass); }
+  .legal-box .legal-title { font-size: 20px; font-weight: 700; color: var(--brass); margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #E5E0D5; }
+  .legal-box p { font-size: 17px; line-height: 1.65; color: var(--anthrazit); margin-bottom: 16px; }
+  .legal-box p:last-child { margin-bottom: 0; }
+  .legal-box p strong { color: var(--brass); font-weight: 700; }
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 24px; margin-top: 8px; }
+  .price-card { background: white; border-radius: 10px; padding: 34px 38px; box-shadow: var(--shadow); text-align: center; position: relative; }
+  .price-card.recommended { border: 2px solid var(--brass); box-shadow: var(--shadow-strong); }
+  .recommended-tag { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); background: var(--brass); color: white; font-size: 13px; font-weight: 700; letter-spacing: 1.2px; padding: 7px 18px; border-radius: 4px; white-space: nowrap; }
+  .price-card .plan-name { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 32px; color: var(--anthrazit); margin-bottom: 16px; }
+  .price-card .price-big { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 76px; color: var(--anthrazit); line-height: 1; letter-spacing: -2.5px; }
+  .price-card .price-period { font-size: 18px; color: var(--gray); margin: 8px 0 18px; }
+  .price-card .price-divider { width: 60%; height: 1px; background: #E5E0D5; margin: 8px auto 16px; }
+  .price-card .price-meta { font-size: 15px; color: var(--gray); line-height: 1.6; }
+  .pricing-bottom { background: var(--brass-bg); border-radius: 6px; padding: 18px 26px; }
+  .pricing-bottom-list { font-size: 14.5px; color: var(--anthrazit); line-height: 1.7; }
+  .pricing-bottom-list strong { color: var(--anthrazit); font-weight: 700; }
+  .timeline-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin: 18px 0 28px; }
+  .timeline-card { background: white; border-radius: 8px; padding: 24px 20px; box-shadow: var(--shadow); text-align: center; border-top: 3px solid var(--brass); position: relative; }
+  .timeline-card .num { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 42px; color: var(--brass); line-height: 1; margin-bottom: 12px; }
+  .timeline-card .title { font-size: 16px; font-weight: 700; color: var(--anthrazit); margin-bottom: 10px; line-height: 1.3; }
+  .timeline-card .desc { font-size: 13px; color: var(--gray); line-height: 1.5; margin-bottom: 14px; }
+  .timeline-card .tag { font-size: 11.5px; font-weight: 700; letter-spacing: 1px; color: var(--brass); background: var(--brass-bg); padding: 5px 12px; border-radius: 3px; display: inline-block; }
+  .next-footer { font-size: 16px; color: var(--gray); line-height: 1.55; font-style: italic; margin-top: auto; }
+  .ready-subtitle { font-size: 21px; color: var(--gray); line-height: 1.55; margin-bottom: 36px; }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 32px; }
+  .contact-col { background: white; border-radius: 8px; padding: 28px 32px; box-shadow: var(--shadow); }
+  .contact-col .ttl { font-size: 17px; font-weight: 700; color: var(--brass); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #E5E0D5; }
+  .contact-row { margin-bottom: 14px; }
+  .contact-row:last-child { margin-bottom: 0; }
+  .contact-row .lbl { font-size: 12px; font-weight: 700; color: var(--gray); letter-spacing: 1.2px; margin-bottom: 4px; }
+  .contact-row .val { font-size: 17px; color: var(--anthrazit); font-weight: 500; }
+  .ready-cta { background: var(--brass); color: white; padding: 22px 32px; border-radius: 6px; text-align: center; font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 26px; letter-spacing: 0.5px; }
+  .ready-meta { font-size: 14px; color: var(--gray); text-align: center; margin-top: 20px; font-style: italic; }
+  @media print { body { background: white; padding: 0; } .deck { gap: 0; } .slide { box-shadow: none; page-break-after: always; } @page { size: 1280px 905px; margin: 0; } }
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- SLIDE 1 — OMSLAG -->
+<div class="slide cover">
+  <div class="cover-luko">✦ LUKO SITE PATRON</div>
+  <div>
+    <h1 class="cover-title">Svetainė,<br>kuri galėtų dirbti<br>išskirtinai Jums</h1>
+    <div class="cover-meta">
+      <div class="cover-subtitle">Site Patron 2026 — pasiūlymas Amazon pardavėjams</div>
+      <p class="cover-desc">Specializuota svetainė Jūsų nišoje. Išskirtinumas. Jūsų prekės ženklas.<br>Tiesioginis B2B kanalas, be komisinio mokesčio.<br>Pažvelkite, įvertinkite, nuspręskite.</p>
+    </div>
+  </div>
+  <div class="cover-footer-block">
+    <div class="cover-brand">LUKO SITE PATRON</div>
+    <div class="cover-meta-line">NETANALIZA LTD · LK24 · {{DECK_DATE}}</div>
+  </div>
+  <div class="page-num">1 / 15</div>
+</div>
+
+<!-- SLIDE 2 — KĄ SIŪLAU -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">KĄ SIŪLAU</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Viena specializuota svetainė — Jūsų, jei pageidaujate</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Aš valdau teminę svetainę Jūsų nišoje. Ji gali veikti išskirtinai po Jūsų prekės ženklu. Žemiau: ką ji siūlo + dvi demo versijos palyginimui.</p>
+    <h3 class="section-title">🎯 Ką siūloma svetainė Jums duoda, jei tampate Patronu</h3>
+    <div class="benefits-grid">
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Tik Jūsų produktai</strong> — jokios konkurencijos Apimties ribose</span></div>
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Jūsų logotipas + sekcija „Apie prekės ženklą"</strong> — įmonės istorija (medžiagą galite pateikti — bet neprivalote)</span></div>
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Tiesioginis B2B kontaktas</strong> — be Amazon, be komisinio mokesčio</span></div>
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Viskas mūsų pusėje</strong> — turinys, SEO, GEO, prieglobstis, stebėjimas</span></div>
+    </div>
+    <h3 class="section-title">Norite pamatyti gyvai? Turiu dvi demo versijas palyginimui:</h3>
+    <div class="demos-grid">
+      <div class="demo-box yellow">
+        <div class="label">🟡 VERSIJA A — PATRONO  ●  LIVE</div>
+        <a class="url" href="{{DEMO_URL_A}}" target="_blank" rel="noopener">{{DEMO_URL_A}}</a>
+        <div class="desc">Taip atrodo patrono svetainė. Tik Jūsų produktai. Prekės ženklo profilis. B2B kontaktas.</div>
+      </div>
+      <div class="demo-box blue">
+        <div class="label">🔵 VERSIJA B — MULTI-BRAND  ●  LIVE</div>
+        <a class="url" href="{{DEMO_URL_B}}" target="_blank" rel="noopener">{{DEMO_URL_B}}</a>
+        <div class="desc">Taip atrodo multi-brand svetainė (palyginimui). Jūsų produktai šalia 30+ konkurentų.</div>
+      </div>
+    </div>
+    <p class="footer-note">30 sekundžių darbo: atidarykite abas nuorodas naujose kortelėse. Turinys ir dizainas labai panašūs — pagrindinis skirtumas yra produktų sąraše ir prekės ženklo sekcijoje.</p>
+  </div>
+  <div class="page-num">2 / 15</div>
+</div>
+
+<!-- SLIDE 3 — PROBLEMA -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">PROBLEMA</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Kiekvienas papildomas pardavimas Amazon<br>kainuoja vis daugiau</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Standartiniai pardavimų didinimo metodai turi savo kaštus. Visi. Kiekvienas savaip.</p>
+    <div class="problems-list">
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Amazon Ads (CPC + ACOS).</strong> Mokate už kiekvieną paspaudimą. ACOS už top bestselerių ribų paprastai siekia 15–25 % — gabalą Jūsų maržos suvalgo reklama. Konversija paprastai 4–5 % (kartais iki 10 %, bet retai).</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Influenceriai ir affiliate partneriai.</strong> Mokate komisinį už kiekvieną pardavimą. Esant 200–1 000 užsakymų per mėnesį net 5 % yra realus pinigų kiekis. Ir dažnai tai epizodinis kanalas — vienas įrašas ir baigta.</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Klasikinės SEO agentūros.</strong> 500–1 500 €/mėn., rezultatai tik 6–12 mėnesį. Reikalauja ilgalaikių sutarčių ir nuolatinio bendradarbiavimo. Negalima tiesiog pradėti ir sustoti kai panorėjus.</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Display reklama / baneriai.</strong> CPM aukštas, konversija žema. Žmonės ignoruoja banerius. Prekės ženklo žinomumas auga minimaliai — pardavimai dar mažiau.</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Nuosava prekės ženklo svetainė.</strong> Reikalauja samdyti tekstų kūrėjus, programuotojus, SEO ir AI-search specialistus. Domenas, prieglobstis, priežiūra. Pirmieji rezultatai po metų.</div></div>
+    </div>
+  </div>
+  <div class="page-num">3 / 15</div>
+</div>
+
+<!-- SLIDE 4 — SPRENDIMAS -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">SPRENDIMAS</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Site Patron — sujungia privalumus, nukerpa kaštus</h1>
+    <div class="h1-line"></div>
+    <div class="solution-box">
+      <div class="lead"><span class="star-mark">✦</span>Nuomojate vietą specializuotoje svetainėje Jūsų nišoje — ir ten rodomi tik Jūsų produktai.</div>
+      <p class="lead-detail">Svetainė optimizuota Google (SEO) ir AI paieškai: ChatGPT, Perplexity, Claude, Grok (tai GEO). Visas srautas eina tiesiai į Jūsų produktus Amazon. Mokate vieną fiksuotą, žemą mėnesinį mokestį. Jokio komisinio nuo pardavimo. Jokių svetainės kūrimo kaštų. Jokių priežiūros kaštų.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="num">1</div><div class="title">Mes statome svetainę</div><div class="desc">Nišos tyrimas, raktiniai žodžiai, klientų elgesys. Turinys. Viskas.</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step-card"><div class="num">2</div><div class="title">Klientas ieško sprendimo</div><div class="desc">Atvyksta iš Google arba AI paieškos. Skaito gidą, mato rekomendaciją.</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step-card"><div class="num">3</div><div class="title">Eina į Amazon ir perka</div><div class="desc">Paspaudžia. Nusileidžia ant Jūsų listingo. Perka. Jūs įvykdote užsakymą.</div></div>
+    </div>
+  </div>
+  <div class="page-num">4 / 15</div>
+</div>
+
+<!-- SLIDE 5 — SIFFRORNA -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">SKAIČIAI IŠ MŪSŲ AKTUALIŲ PROJEKTŲ</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Konversija, kurios reklamos nepasiekia</h1>
+    <div class="h1-line"></div>
+    <div class="numbers-hero">
+      <div class="big-number">10–50 %</div>
+      <p class="numbers-subtitle">Tiek žmonių, kurie aplankė Site Patron svetainę, paspaudė ir nusipirko Amazon. <strong>Konkrečiose nišose su geru klientas/produktas atitikimu — 30–50 %.</strong></p>
+    </div>
+    <div class="bar-chart">
+      <div class="bar-col"><div class="bar-value">4–5 %</div><div class="bar gray" style="height: 24px;"></div><div class="bar-label">Amazon Ads — vidurkis</div></div>
+      <div class="bar-col"><div class="bar-value">~10 %</div><div class="bar gray" style="height: 55px;"></div><div class="bar-label">Amazon Ads — viršus</div></div>
+      <div class="bar-col"><div class="bar-value">10–50 %</div><div class="bar brass" style="height: 220px;"></div><div class="bar-label">Site Patron</div></div>
+    </div>
+    <p class="why-text"><strong style="color: var(--anthrazit);">Kodėl taip aukštai?</strong> Žmonės į mūsų svetainę nepatenka atsitiktinai — jie ieško konkretaus sprendimo konkrečiai problemai. Svetainė duoda jiems būtent tą atsakymą ir vienareikšmiškai parodo produktą. Jokio blaškymo, jokių 10 prekės ženklų palyginimui, jokių marketinginių pažadų. Yra gidas, yra produktas, yra nuoroda į Amazon.</p>
+  </div>
+  <div class="page-num">5 / 15</div>
+</div>
+
+<!-- SLIDE 6 — KUO ŠIS MODELIS SKIRIASI -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">KUO ŠIS MODELIS SKIRIASI</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">{{PRICE_MONTHLY_USD}} USD — ir kiekvienas užsakymas yra nemokamas</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Praktiškai visose kitose marketingo ir reklamos formose kiekvienas papildomas užsakymas generuoja papildomą kaštą. Su Site Patron — ne.</p>
+    <div class="differentiator-grid">
+      <div class="col-light">
+        <div class="col-title">Kiti kanalai — kaštai auga su kiekvienu užsakymu</div>
+        <div class="channel-list">
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Amazon Ads (PPC)</strong> — CPC × kiekvienas paspaudimas</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Influenceriai / affiliate</strong> — % komisinio × kiekvienas pardavimas</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Google Ads / Facebook Ads</strong> — CPC × kiekvienas paspaudimas</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Display reklama / baneriai</strong> — CPM × kiekvienas parodymas</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Naujienlaiškis / el. pašto marketingas</strong> — mokestis už bazę × siuntimas</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>SEO agentūra</strong> — 500–1 500 €/mėn. + ilgos sutartys</span></div>
+        </div>
+      </div>
+      <div class="col-dark">
+        <div class="col-title">LUKO Site Patron — fiksuotas mokestis</div>
+        <div class="price-hero">{{PRICE_MONTHLY_USD}} USD</div>
+        <div class="price-sub">per mėnesį — ir tiek</div>
+        <div class="channel-list">
+          <div class="channel-item"><span class="check" style="color: var(--brass);">✓</span><span><strong style="color:white;">Kiekvienas užsakymas iš svetainės</strong> — be papildomų kaštų</span></div>
+          <div class="channel-item"><span class="check" style="color: var(--brass);">✓</span><span><strong style="color:white;">Kiekvienas parodymas</strong> — nemokamai</span></div>
+          <div class="channel-item"><span class="check" style="color: var(--brass);">✓</span><span><strong style="color:white;">Kiekvienas didmeninis B2B klientas</strong> — be komisinio</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="footer-text"><strong style="color: var(--anthrazit);">Logika paprasta:</strong> visi kiti marketingo kanalai skaliuoja kaštus kartu su pardavimais — kuo geriau veikia, tuo daugiau Jums kainuoja. Site Patron veikia atvirkščiai: kuo daugiau užsakymų svetainė atneša, tuo labiau Jums apsimoka. Kaina fiksuota, be lubų.</p>
+  </div>
+  <div class="page-num">6 / 15</div>
+</div>
+
+<!-- SLIDE 7 — KĄ TURĖTUMĖTE DARYTI PATS -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">KĄ TURĖTUMĖTE DARYTI PATS</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1 smaller">Mes atliekame VISĄ darbą — tai, kas nematoma sąskaitoje</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">{{PRICE_MONTHLY_USD}} USD per mėnesį yra maždaug 50 €. Žemiau: ką realiai gaunate už šią kainą ir kiek Jums kainuotų visa tai organizuoti pačiam.</p>
+    <div class="compare-grid">
+      <div class="compare-card brass-top">
+        <div class="label">🟡 Site Patron — mes</div>
+        <div class="price">~50 € / mėn.</div>
+        <div class="compare-list">
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Nišos ir raktinių žodžių tyrimas</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Turinio kūrimas ir priežiūra</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Prieglobstis, domenas, stebėjimas, atsarginės kopijos</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>SEO (Google) + GEO (AI paieška)</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Schema.org, Core Web Vitals</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Nuolatiniai atnaujinimai pagal tendencijas</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Daugiametė patirtis internetinėje rinkodaroje</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Rezultatai patikrinti kituose projektuose</span></div>
+        </div>
+      </div>
+      <div class="compare-card gray-top">
+        <div class="label">🔵 Ką turėtumėte susitvarkyti pats</div>
+        <div class="price muted">už šią kainą neapsimoka</div>
+        <div class="compare-list">
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Jūsų darbo valandos</strong> (arba Jūsų darbuotojo) — tyrimas, rašymas, redagavimas, stebėjimas</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Įrankiai, kurių vis tiek reikia:</strong> Ahrefs/Semrush (50–150 €/mėn.), serveris + domenas, AI-content įrankiai, analytics</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Laikas vien tik įsigilinti į nišą</strong> — dešimtys valandų tyrimo apie klientų elgesį, raktinius žodžius, turinio struktūrą</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>SEO agentūra (alternatyva):</strong> 500–1 500 €/mėn., ilgos sutartys, rezultatai 6–12 mėnesį</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Google algoritmo pakeitimas?</strong> Jūsų problema. Indeksavimas AI paieškoje (ChatGPT, Perplexity)? Jūsų problema.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">7 / 15</div>
+</div>
+
+<!-- SLIDE 8 — FÖRDELAR 1-4 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">PRIVALUMAI 1–4</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Ką tai Jums konkrečiai duoda (1 dalis)</h1>
+    <div class="h1-line"></div>
+    <div class="korzysci-grid">
+      <div class="korzysc-card"><div class="korzysc-num">1</div><div class="korzysc-content"><div class="title">Išskirtinis buvimas Jūsų nišoje</div><div class="desc">Svetainė rodo tik Jūsų produktus Apimties ribose — jokios konkurencijos. Klientas, ieškantis sprendimo, patenka į svetainę ir mato tik Jus. Visas dėmesys, netrikdomas pirkimo sprendimas.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">2</div><div class="korzysc-content"><div class="title">Brandingas ir prekės ženklo autoritetas</div><div class="desc">Jūsų logotipas, sekcija „Apie prekės ženklą" su įmonės istorija ir gamybos procesu, B2B kontaktas. Svetainė kuria autoriteto poziciją kategorijoje — ne tik dar vieną pardavėją 30 prekės ženklų sąraše.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">3</div><div class="korzysc-content"><div class="title">Jokių svetainės kūrimo kaštų</div><div class="desc">Nišos tyrimas, klientų elgesio analizė, raktiniai žodžiai, turinys (keli tūkstančiai žodžių subkategorijai + prekės ženklo profilis + pradinis puslapis), nuotraukos, dizainas — viskas mūsų pusėje.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">4</div><div class="korzysc-content"><div class="title">Jokių svetainės priežiūros kaštų</div><div class="desc">Serveris, domenas, prieinamumas, stebėjimas, saugumas, atsarginės kopijos — viskas mūsų. Atsiranda klaida — taisome. Ateina sezonas, tendencija, naujas bestseleris — pridedame.</div></div></div>
+    </div>
+  </div>
+  <div class="page-num">8 / 15</div>
+</div>
+
+<!-- SLIDE 9 — FÖRDELAR 5-8 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">PRIVALUMAI 5–8</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Ką tai Jums konkrečiai duoda (2 dalis)</h1>
+    <div class="h1-line"></div>
+    <div class="korzysci-grid">
+      <div class="korzysc-card"><div class="korzysc-num">5</div><div class="korzysc-content"><div class="title">Jokių SEO ar AI-search specialistų</div><div class="desc">Google algoritmas keičiasi — tai mūsų problema. Indeksavimas, GEO, Schema.org, Core Web Vitals, turinio atnaujinimai — viskas mūsų pusėje. Jūs nesamdote nei agentūros, nei specialistų.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">6</div><div class="korzysc-content"><div class="title">Papildoma vieta kliento ekrane</div><div class="desc">Klientas ieško, mato 10 rezultatų Google. Jei mūsų svetainė įšoka ten — tai viena vieta mažiau konkurencijai. Klientas mato tik Jūsų produktus ir sekciją „Apie prekės ženklą".</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">7</div><div class="korzysc-content"><div class="title">BSR pagerinimas Amazon</div><div class="desc">Kiekvienas papildomas užsakymas iš mūsų svetainės gerina Jūsų BSR ant duoto ASIN. O kadangi klientas nepirko pas konkurentą — jų BSR blogėja. Dvigubas efektas: Jūs aukštyn, jie žemyn.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">8</div><div class="korzysc-content"><div class="title">Jokios teisinės atsakomybės už svetainę</div><div class="desc">Viskas: turinys, prieglobstis, BDAR, informavimo pareigos, autorinės teisės — mūsų pusėje. Vienintelis dalykas, kuris lieka pas Jus, yra Jūsų pateikta medžiaga (logotipas, prekės ženklo aprašymas).</div></div></div>
+    </div>
+  </div>
+  <div class="page-num">9 / 15</div>
+</div>
+
+<!-- SLIDE 10 — BONUS B2B -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">BONUSAS — STIPRUS ARGUMENTAS</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1 smaller">Tiesioginis B2B kanalas su Patronu — be Amazon komisinio</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Ko standartinis Amazon listingas Jums neduoda — ir kas daugeliui pardavėjų yra stipriausias argumentas už Site Patron.</p>
+    <div class="bonus-grid">
+      <div class="bonus-col">
+        <div class="col-title">Kas yra patrono svetainėje</div>
+        <div class="bonus-list">
+          <div class="bonus-list-item"><span>Įmonės profilis su veiklos aprašymu, istorija, vertybėmis</span></div>
+          <div class="bonus-list-item"><span>Tiesioginis kontaktas: el. paštas, telefonas, kontaktinė forma</span></div>
+          <div class="bonus-list-item"><span>Raginimas susisiekti klientams, ieškantiems didesnių užsakymų, B2B, didmeninės prekybos</span></div>
+          <div class="bonus-list-item"><span>Mygtukai „Susisiekite tiesiogiai" šalia produktų rekomendacijų</span></div>
+        </div>
+      </div>
+      <div class="bonus-col">
+        <div class="col-title">Ką tai praktiškai Jums duoda</div>
+        <div class="bonus-list">
+          <div class="bonus-list-item"><span>Didmeniniai klientai ({{B2B_BUYERS_NOM}}) rašo tiesiogiai Jums</span></div>
+          <div class="bonus-list-item"><span>Pardavimas už Amazon ribų = be 15 % komisinio, be platformos apribojimų</span></div>
+          <div class="bonus-list-item"><span>Galimybė derėtis dėl kainų ir B2B sąskaitų faktūrų tarp įmonių</span></div>
+          <div class="bonus-list-item"><span>Nuolatinis klientas Jūsų portfelyje — pasikartojantys užsakymai be Amazon kaštų</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="example-box">
+      <div class="example-label">KONKRETUS PAVYZDYS</div>
+      <p class="example-text">Klientas užsako rinkinį {{B2B_QUANTITY}} {{B2B_PRODUCT_PL}} (pvz. {{B2B_BUYERS_GEN}}). <strong>Amazon platformoje:</strong> perka po vieną, kiekvienas apmokestinamas 15 % Amazon komisiniu + platformos apribojimais. <strong>Tiesiogiai iš Patrono per svetainę:</strong> viena B2B sąskaita faktūra tarp įmonių, be komisinio, erdvė derėtis dėl kainos prie didesnių apimčių. Grynas pelnas + naujas verslo kontaktas portfelyje.</p>
+    </div>
+  </div>
+  <div class="page-num">10 / 15</div>
+</div>
+
+<!-- SLIDE 11 — IŠSKIRTINUMAS -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">IŠSKIRTINUMAS</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Išskirtinumas reiškia išskirtinumą</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Kas tiksliai pasikeičia po Jūsų „taip" — ir kas atsitinka, jei nutraukiate prenumeratą.</p>
+    <div class="exclusivity-grid">
+      <div class="exclusivity-col before-state">
+        <div class="state-label">BE PATRONO (DABAR)</div>
+        <div class="state-desc">Svetainė B (multi-brand) yra internete ir rodo daugelio prekės ženklų produktus. Jūsų produktai ten yra kaip vienas iš 30+ pasiūlymų. Klientas mato visus, sprendimas išsklaidytas.</div>
+        <div class="brand-grid">
+          <div class="brand-chip">Prekės ženklas A</div>
+          <div class="brand-chip">Prekės ženklas B</div>
+          <div class="brand-chip">Prekės ženklas C</div>
+          <div class="brand-chip">Prekės ženklas D</div>
+          <div class="brand-chip others" style="grid-column: 1 / -1;">+ 26 kiti</div>
+        </div>
+      </div>
+      <div class="exclusivity-col after-state">
+        <div class="state-label">SU SITE PATRON</div>
+        <div class="state-desc">Svetainė A (patrono) rodo TIK Jūsų produktus. Svetainė B (multi-brand) yra IŠJUNGTA visą prenumeratos laikotarpį. Klientas mato tik Jus.</div>
+        <div class="exclusive-banner"><div class="text">TIK JŪSŲ PRODUKTAI</div></div>
+      </div>
+    </div>
+    <p class="footer-text"><strong style="color: var(--anthrazit);">Sutartiniai apsaugos mechanizmai (24, 27, 31 punktai):</strong> po prenumeratos pabaigos Jūsų medžiagą (logotipą, sekciją „Apie prekės ženklą") pašaliname per 14 dienų. Svetainė A grįžta į multi-brand režimą. Svetainė A tada gali būti pasiūlyta kitam pardavėjui kaip patrono svetainė (be įsipareigojimo dėl išskirtinumo Jums po nutraukimo — 27.2 punktas). Bet kol mokate — išskirtinumas yra išskirtinumas. Plius anti-kanibalizacija: prenumeratos metu nepriimame konkurento klaidinančiai panašiu domenu (15 punktas).</p>
+  </div>
+  <div class="page-num">11 / 15</div>
+</div>
+
+<!-- SLIDE 12 — TEISINIAI ASPEKTAI -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">TEISINIAI ASPEKTAI</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Kaip Amazon veikia mūsų svetainėje</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Trumpai apie tai, kodėl rodyti Amazon produktus mūsų svetainėje yra teisėta — ir ką tai reiškia Jums kaip pardavėjui.</p>
+    <div class="legal-box">
+      <div class="legal-title">📋 Amazon produktų rodymas — teisinis pagrindas</div>
+      <p>Amazon produktų rodymą mūsų svetainėje — jų nuotraukų, kainų, pavadinimų ir aprašymų — reglamentuoja <strong>mano affiliate sutartis su Amazon</strong> (Amazon EU Associates Programme IP Licence). Ši sutartis suteikia man teisę teisėtai pristatyti Amazon platformos produktus redakciniame mano svetainės Turinyje.</p>
+      <p><strong>Ką tai reiškia praktiškai:</strong> Amazon suteikia man licenciją rodyti produktus. Pardavėjas (Jūs, Jūsų konkurentas, bet kas) negali užblokuoti to, kad rodau kai kuriuos produktus iš platformos. Tai tarp Amazon ir manęs — Jūs čia nesate šalis.</p>
+      <p><strong>Ką tai Jums duoda kaip Patronui:</strong> tikrumą, kad svetainė veikia ant tvirtų teisinių pagrindų. Produktų išskirtinumas Apimties ribose yra papildoma paslauga, kurią perkate — mes įsipareigojame nerodyti konkurencijos Jūsų prenumeratos metu (sutarties 14.1 punktas). Be Jūsų prenumeratos — multi-brand versija lieka, yra teisėta, veikia.</p>
+    </div>
+    <p class="footer-text" style="margin-top: 20px;"><em>Punktai patikrinimui sutartyje: 5 (Svetainės pobūdis), 7 (Nepriklausomumas nuo Amazon affiliate), 16 (Amazon turinys ir atitiktis).</em></p>
+  </div>
+  <div class="page-num">12 / 15</div>
+</div>
+
+<!-- SLIDE 13 — PRIS -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">KAINA — TAI „NO-BRAINER"</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Vienas planas. Du variantai. Fiksuotas mokestis.</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Jokio komisinio. Jokio CPC. Jokių paslėptų kaštų. 30 dienų pinigų grąžinimo garantija = jokios rizikos.</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="plan-name">Mėnesinis</div>
+        <div class="price-big">{{PRICE_MONTHLY_USD}} USD</div>
+        <div class="price-period">per mėnesį</div>
+        <div class="price-divider"></div>
+        <div class="price-meta">Min. laikotarpis: 3 mėnesiai ({{PRICE_MIN_3M_USD}} USD)<br>Automatiškai pratęsiama iki atšaukimo</div>
+      </div>
+      <div class="price-card recommended">
+        <div class="recommended-tag">REKOMENDUOJAMA — SUTAUPOTE {{PRICE_SAVINGS_USD}} USD</div>
+        <div class="plan-name">Metinis</div>
+        <div class="price-big">{{PRICE_YEARLY_USD}} USD</div>
+        <div class="price-period">per metus</div>
+        <div class="price-divider"></div>
+        <div class="price-meta">Min. laikotarpis: 1 metai<br>Automatiškai pratęsiama iki atšaukimo</div>
+      </div>
+    </div>
+    <div class="pricing-bottom">
+      <div class="pricing-bottom-list">
+        <strong>Tai klasikinis „no-brainer":</strong> &nbsp;
+        <span class="check">✓</span> <strong>Jokios rizikos:</strong> 30 dienų pinigų grąžinimo garantija nuo pirmojo mokėjimo &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>Jokių įsipareigojimų:</strong> atšaukimas vienu paspaudimu skydelyje arba el. paštu &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>Žemas įėjimo slenkstis:</strong> ~50 €/mėn. — mažiau nei viena valanda SEO specialisto darbo &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>Svetainė jau egzistuoja</strong> — nelaukiate mėnesius, kol kas nors pradės vykti &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>Kiekvienas užsakymas iš svetainės</strong> — be papildomų kaštų (slide 6)<br>
+        <em style="color: var(--gray);">Mokėjimas: Stripe arba PayPal, sąskaita faktūra automatiškai po įskaitymo.</em>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">13 / 15</div>
+</div>
+
+<!-- SLIDE 14 — KITI ŽINGSNIAI -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">KITI ŽINGSNIAI</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Kaip pradėti — 5 žingsniais, per 2–3 dienas</h1>
+    <div class="h1-line"></div>
+    <div class="timeline-grid">
+      <div class="timeline-card"><div class="num">01</div><div class="title">Plano pasirinkimas el. paštu</div><div class="desc">Atsakote į el. laišką su pasirinkimu (mėnesinis / metinis) arba su klausimais.</div><div class="tag">DIENA 0</div></div>
+      <div class="timeline-card"><div class="num">02</div><div class="title">Mokėjimas</div><div class="desc">Atsiunčiu checkout nuorodą (Stripe / PayPal). Mokate iš anksto. Sąskaita faktūra ateina iš karto.</div><div class="tag">DIENA 1</div></div>
+      <div class="timeline-card"><div class="num">03</div><div class="title">Logotipas + prekės ženklo aprašymas</div><div class="desc">Atsiunčiate logotipą (SVG/PNG) ir 2–3 sakinius apie prekės ženklą.</div><div class="tag">DIENA 1–2</div></div>
+      <div class="timeline-card"><div class="num">04</div><div class="title">Išskirtinumas aktyvus</div><div class="desc">Svetainė A rodo tik Jus. Svetainė B yra išjungta.</div><div class="tag">DIENA 2–3</div></div>
+      <div class="timeline-card"><div class="num">05</div><div class="title">Pirmasis raportas</div><div class="desc">Po 30 dienų — raportas su skaičiais. Vėliau kas mėnesį.</div><div class="tag">+30 DIENŲ</div></div>
+    </div>
+    <p class="next-footer">Šiuo metu siūlau tai išskirtinai Jums. Laukiu Jūsų sprendimo ar klausimų. Netrukus, jei neateis atsakymas, pasiūlysiu Site Patron ir kitiems pardavėjams šioje kategorijoje — bet šiandien tema yra tik Jums.</p>
+  </div>
+  <div class="page-num">14 / 15</div>
+</div>
+
+<!-- SLIDE 15 — PASIRENGĘ KALBĖTI? -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">PASIRENGĘ KALBĖTI?</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Pradedam?</h1>
+    <div class="h1-line"></div>
+    <p class="ready-subtitle">Svetainės jau internete. Pažvelkite. Atidarykite PDF. Atsakykite, kai patiks.<br>Konversija paprastai dviženklė. Fiksuota kaina. Atšaukimas vienu paspaudimu.</p>
+    <div class="contact-grid">
+      <div class="contact-col">
+        <div class="ttl">📧 KONTAKT</div>
+        <div class="contact-row"><div class="lbl">EL. PAŠTAS</div><div class="val">service@netanaliza.com</div></div>
+        <div class="contact-row"><div class="lbl">WHATSAPP</div><div class="val">+48 795 055 173</div></div>
+        <div class="contact-row"><div class="lbl">WEB</div><div class="val">rekl-ama.pl</div></div>
+      </div>
+      <div class="contact-col">
+        <div class="ttl">🏢 OPERATORIUS</div>
+        <div class="contact-row"><div class="lbl">ĮMONĖ</div><div class="val">NETANALIZA LTD</div></div>
+        <div class="contact-row"><div class="lbl">ADRESAS</div><div class="val">71-75 Shelton Street, Covent Garden, WC2H 9JQ, London, UK</div></div>
+        <div class="contact-row"><div class="lbl">COMPANY NO.</div><div class="val">16499220</div></div>
+      </div>
+    </div>
+    <div class="ready-cta">ATSAKYKITE Į ŠĮ EL. LAIŠKĄ IR PRADEDAM</div>
+    <p class="ready-meta">Łukasz Koronczok · NETANALIZA LTD · {{DECK_DATE}}</p>
+  </div>
+  <div class="page-num">15 / 15</div>
+</div>
+
+</div>
+</body>
+</html>
