@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SitePatron Deck v2 — Sosenco-style</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&display=block" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F8F6F1; --cream-bar: #EDE7DC; --bg: #E5DFD0;
+    --anthrazit: #1A2A3A; --anthrazit-light: #2A3F58;
+    --brass: #C9A961; --brass-light: #E6D7AF; --brass-bg: #F4EDD9;
+    --text: #1A2A3A; --gray: #5F6978; --gray-light: #9aa3b0;
+    --red: #C43C3C; --green: #4C915F; --blue: #6482B4; --white: #FFFFFF;
+    --shadow: 0 2px 6px rgba(26, 42, 58, 0.06);
+    --shadow-strong: 0 6px 24px rgba(26, 42, 58, 0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: auto; }
+  body { background: var(--bg); font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--text); line-height: 1.5; padding: 30px 0; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  .deck { display: flex; flex-direction: column; align-items: center; gap: 30px; }
+  .slide { width: 1280px; height: 905px; background: var(--cream); position: relative; overflow: hidden; box-shadow: var(--shadow-strong); page-break-after: always; flex-shrink: 0; }
+  .header-bar { position: absolute; top: 0; left: 0; right: 0; height: 56px; background: var(--cream-bar); display: flex; align-items: center; justify-content: space-between; padding: 0 60px; }
+  .header-label { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--brass); text-transform: uppercase; }
+  .luko-tag { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--brass); }
+  .slide-content { padding: 86px 60px 56px; height: 100%; display: flex; flex-direction: column; }
+  .h1 { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 60px; line-height: 1.1; color: var(--anthrazit); margin-bottom: 18px; letter-spacing: -0.8px; }
+  .h1.smaller { font-size: 50px; }
+  .h1-line { height: 2px; background: var(--brass); margin-bottom: 24px; width: 100%; }
+  .subtitle { font-size: 19px; line-height: 1.55; color: var(--gray); margin-bottom: 28px; max-width: 1100px; }
+  .section-title { font-size: 19px; font-weight: 600; color: var(--anthrazit); margin-bottom: 14px; }
+  .page-num { position: absolute; bottom: 22px; right: 60px; font-size: 12px; color: var(--gray-light); letter-spacing: 0.5px; z-index: 5; }
+  .check { color: var(--green); font-weight: 700; font-size: 18px; }
+  .x-mark { color: var(--red); font-weight: 700; font-size: 20px; }
+  .plus-mark { color: var(--brass); font-weight: 700; font-size: 20px; }
+  .cover { background: var(--cream); padding: 70px 90px 90px; display: flex; flex-direction: column; justify-content: space-between; }
+  .cover-luko { position: absolute; top: 60px; right: 90px; font-size: 14px; font-weight: 700; letter-spacing: 2px; color: var(--brass); }
+  .cover-title { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 96px; line-height: 1.05; color: var(--anthrazit); letter-spacing: -2.5px; margin-top: 60px; }
+  .cover-meta { margin-top: 40px; }
+  .cover-subtitle { font-size: 28px; color: var(--brass); font-weight: 600; margin-bottom: 16px; letter-spacing: 0.3px; }
+  .cover-desc { font-size: 22px; line-height: 1.55; color: var(--anthrazit); max-width: 800px; }
+  .cover-footer-block { border-top: 2px solid var(--brass); padding-top: 16px; width: 360px; }
+  .cover-brand { font-size: 14px; font-weight: 700; color: var(--anthrazit); letter-spacing: 6px; word-spacing: 8px; margin-bottom: 7px; }
+  .cover-meta-line { font-size: 11px; color: var(--gray); letter-spacing: 5px; word-spacing: 8px; text-transform: uppercase; }
+  .benefits-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 40px; margin-bottom: 34px; }
+  .benefit-item { display: flex; gap: 14px; align-items: flex-start; font-size: 17px; line-height: 1.5; }
+  .benefit-item .icon { color: var(--green); font-weight: 700; flex-shrink: 0; font-size: 18px; }
+  .benefit-item strong { color: var(--anthrazit); font-weight: 600; }
+  .demos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 18px; }
+  .demo-box { background: white; border-radius: 8px; padding: 22px 28px; border: 2px solid; box-shadow: var(--shadow); }
+  .demo-box.yellow { border-color: var(--brass); }
+  .demo-box.blue { border-color: var(--blue); }
+  .demo-box .label { font-size: 14px; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 10px; }
+  .demo-box.yellow .label { color: var(--brass); }
+  .demo-box.blue .label { color: var(--blue); }
+  .demo-box .url { display: block; text-decoration: none; font-size: 21px; font-weight: 700; color: var(--anthrazit); margin-bottom: 10px; font-family: 'Inter', monospace; }
+  .demo-box .url:hover { color: var(--blue); }
+  .demo-box .desc { font-size: 15px; color: var(--gray); line-height: 1.5; }
+  .footer-note { font-size: 14.5px; color: var(--gray); font-style: italic; margin-top: auto; }
+  .problems-list { display: flex; flex-direction: column; gap: 22px; margin-top: 8px; }
+  .problem-item { display: flex; gap: 20px; align-items: flex-start; }
+  .problem-item .icon { color: var(--red); font-weight: 700; font-size: 24px; flex-shrink: 0; line-height: 1; margin-top: 4px; }
+  .problem-item .text { flex: 1; font-size: 17px; line-height: 1.55; color: var(--gray); }
+  .problem-item .text strong { color: var(--anthrazit); font-weight: 700; font-size: 18px; }
+  .solution-box { background: var(--anthrazit); color: white; padding: 36px 42px; border-radius: 8px; margin-bottom: 36px; position: relative; }
+  .solution-box .lead { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 32px; line-height: 1.3; margin-bottom: 16px; color: white; }
+  .solution-box .lead-detail { font-size: 18px; line-height: 1.6; color: rgba(255,255,255,0.85); }
+  .solution-box .star-mark { color: var(--brass); font-size: 32px; margin-right: 8px; }
+  .steps-grid { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 14px; align-items: stretch; }
+  .step-card { background: white; border-radius: 8px; padding: 26px 22px; text-align: center; border-top: 3px solid var(--brass); box-shadow: var(--shadow); }
+  .step-card .num { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 46px; color: var(--brass); line-height: 1; margin-bottom: 12px; }
+  .step-card .title { font-size: 18px; font-weight: 700; color: var(--anthrazit); margin-bottom: 8px; }
+  .step-card .desc { font-size: 14px; color: var(--gray); line-height: 1.5; }
+  .step-arrow { align-self: center; color: var(--brass); font-size: 32px; font-weight: 300; }
+  .numbers-hero { text-align: center; margin: 18px 0 38px; }
+  .big-number { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 140px; line-height: 1; color: var(--anthrazit); letter-spacing: -4px; margin-bottom: 12px; }
+  .numbers-subtitle { font-size: 19px; color: var(--gray); max-width: 900px; margin: 0 auto; line-height: 1.5; }
+  .numbers-subtitle strong { color: var(--anthrazit); }
+  .bar-chart { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 80px; align-items: end; height: 240px; padding: 0 100px; margin-bottom: 32px; }
+  .bar-col { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+  .bar-value { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 28px; color: var(--anthrazit); margin-bottom: 10px; }
+  .bar { width: 100%; border-radius: 4px 4px 0 0; box-shadow: var(--shadow); }
+  .bar.gray { background: var(--gray); }
+  .bar.brass { background: var(--brass); }
+  .bar-label { font-size: 15px; color: var(--gray); margin-top: 14px; text-align: center; font-weight: 500; }
+  .why-text { font-size: 16px; color: var(--gray); line-height: 1.55; margin-top: auto; }
+  .differentiator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 26px; }
+  .col-light { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .col-dark { background: var(--anthrazit); color: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .col-title { font-size: 16px; font-weight: 600; color: var(--gray); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #E5E0D5; }
+  .col-dark .col-title { color: var(--brass); border-bottom: 1px solid rgba(201,169,97,0.3); }
+  .channel-list { display: flex; flex-direction: column; gap: 14px; }
+  .channel-item { display: flex; gap: 14px; align-items: flex-start; font-size: 16px; line-height: 1.45; }
+  .channel-item .x-mark { font-size: 18px; line-height: 1.4; }
+  .channel-item strong { color: var(--anthrazit); font-weight: 600; }
+  .price-hero { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 64px; color: var(--brass); line-height: 1; margin: 10px 0 6px; }
+  .price-sub { font-size: 17px; color: rgba(255,255,255,0.75); margin-bottom: 22px; }
+  .col-dark .channel-item .check { color: var(--brass); }
+  .col-dark .channel-item { color: rgba(255,255,255,0.92); }
+  .col-dark .channel-item strong { color: white; }
+  .footer-text { font-size: 15px; color: var(--gray); line-height: 1.55; margin-top: auto; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-bottom: 18px; }
+  .compare-card { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .compare-card.brass-top { border-top: 4px solid var(--brass); }
+  .compare-card.gray-top { border-top: 4px solid var(--gray-light); background: #F5F2EB; }
+  .compare-card .label { font-size: 14px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .compare-card.brass-top .label { color: var(--brass); }
+  .compare-card.gray-top .label { color: var(--gray); }
+  .compare-card .price { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 30px; color: var(--anthrazit); margin-bottom: 18px; }
+  .compare-card .price.muted { color: var(--gray); font-size: 21px; font-style: italic; font-weight: 500; }
+  .compare-list { display: flex; flex-direction: column; gap: 11px; }
+  .compare-list-item { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.45; }
+  .compare-list-item .icon { flex-shrink: 0; width: 18px; text-align: center; }
+  .korzysci-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 8px; }
+  .korzysc-card { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); border-left: 4px solid var(--brass); display: flex; gap: 20px; align-items: flex-start; }
+  .korzysc-num { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 50px; color: var(--brass); line-height: 1; flex-shrink: 0; width: 60px; }
+  .korzysc-content .title { font-size: 19px; font-weight: 700; color: var(--anthrazit); margin-bottom: 8px; }
+  .korzysc-content .desc { font-size: 15px; color: var(--gray); line-height: 1.5; }
+  .bonus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-bottom: 24px; }
+  .bonus-col { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .bonus-col .col-title { font-size: 15px; font-weight: 700; color: var(--brass); letter-spacing: 0.5px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #E5E0D5; text-transform: uppercase; }
+  .bonus-list { display: flex; flex-direction: column; gap: 13px; }
+  .bonus-list-item { display: flex; gap: 12px; font-size: 16px; line-height: 1.45; color: var(--anthrazit); }
+  .bonus-list-item::before { content: "•"; color: var(--brass); font-weight: 700; flex-shrink: 0; font-size: 18px; }
+  .example-box { background: var(--brass-bg); border-left: 4px solid var(--brass); padding: 22px 28px; border-radius: 4px; }
+  .example-label { font-size: 13px; font-weight: 700; letter-spacing: 1.4px; color: var(--brass); margin-bottom: 10px; }
+  .example-text { font-size: 15.5px; line-height: 1.55; color: var(--anthrazit); }
+  .exclusivity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-bottom: 18px; }
+  .exclusivity-col { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .exclusivity-col.before-state { background: #F5F2EB; opacity: 0.85; }
+  .exclusivity-col .state-label { font-size: 14px; font-weight: 700; letter-spacing: 0.6px; margin-bottom: 8px; }
+  .exclusivity-col.before-state .state-label { color: var(--gray); }
+  .exclusivity-col.after-state .state-label { color: var(--brass); }
+  .exclusivity-col .state-desc { font-size: 15px; color: var(--gray); line-height: 1.5; margin-bottom: 18px; }
+  .brand-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .brand-chip { background: white; border: 1px solid #E5E0D5; padding: 10px 14px; border-radius: 4px; font-size: 14px; color: var(--gray); text-align: center; }
+  .brand-chip.others { background: transparent; color: var(--gray-light); font-style: italic; border: 1px dashed #D5D0C0; }
+  .exclusive-banner { background: var(--anthrazit); color: white; padding: 28px 32px; border-radius: 6px; text-align: center; margin-top: 14px; }
+  .exclusive-banner .text { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 28px; color: var(--brass); letter-spacing: 0.8px; }
+  .legal-box { background: white; border-radius: 8px; padding: 32px 38px; box-shadow: var(--shadow); border-left: 5px solid var(--brass); }
+  .legal-box .legal-title { font-size: 20px; font-weight: 700; color: var(--brass); margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #E5E0D5; }
+  .legal-box p { font-size: 17px; line-height: 1.65; color: var(--anthrazit); margin-bottom: 16px; }
+  .legal-box p:last-child { margin-bottom: 0; }
+  .legal-box p strong { color: var(--brass); font-weight: 700; }
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 24px; margin-top: 8px; }
+  .price-card { background: white; border-radius: 10px; padding: 34px 38px; box-shadow: var(--shadow); text-align: center; position: relative; }
+  .price-card.recommended { border: 2px solid var(--brass); box-shadow: var(--shadow-strong); }
+  .recommended-tag { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); background: var(--brass); color: white; font-size: 13px; font-weight: 700; letter-spacing: 1.2px; padding: 7px 18px; border-radius: 4px; white-space: nowrap; }
+  .price-card .plan-name { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 32px; color: var(--anthrazit); margin-bottom: 16px; }
+  .price-card .price-big { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 76px; color: var(--anthrazit); line-height: 1; letter-spacing: -2.5px; }
+  .price-card .price-period { font-size: 18px; color: var(--gray); margin: 8px 0 18px; }
+  .price-card .price-divider { width: 60%; height: 1px; background: #E5E0D5; margin: 8px auto 16px; }
+  .price-card .price-meta { font-size: 15px; color: var(--gray); line-height: 1.6; }
+  .pricing-bottom { background: var(--brass-bg); border-radius: 6px; padding: 18px 26px; }
+  .pricing-bottom-list { font-size: 14.5px; color: var(--anthrazit); line-height: 1.7; }
+  .pricing-bottom-list strong { color: var(--anthrazit); font-weight: 700; }
+  .timeline-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin: 18px 0 28px; }
+  .timeline-card { background: white; border-radius: 8px; padding: 24px 20px; box-shadow: var(--shadow); text-align: center; border-top: 3px solid var(--brass); position: relative; }
+  .timeline-card .num { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 42px; color: var(--brass); line-height: 1; margin-bottom: 12px; }
+  .timeline-card .title { font-size: 16px; font-weight: 700; color: var(--anthrazit); margin-bottom: 10px; line-height: 1.3; }
+  .timeline-card .desc { font-size: 13px; color: var(--gray); line-height: 1.5; margin-bottom: 14px; }
+  .timeline-card .tag { font-size: 11.5px; font-weight: 700; letter-spacing: 1px; color: var(--brass); background: var(--brass-bg); padding: 5px 12px; border-radius: 3px; display: inline-block; }
+  .next-footer { font-size: 16px; color: var(--gray); line-height: 1.55; font-style: italic; margin-top: auto; }
+  .ready-subtitle { font-size: 21px; color: var(--gray); line-height: 1.55; margin-bottom: 36px; }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 32px; }
+  .contact-col { background: white; border-radius: 8px; padding: 28px 32px; box-shadow: var(--shadow); }
+  .contact-col .ttl { font-size: 17px; font-weight: 700; color: var(--brass); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #E5E0D5; }
+  .contact-row { margin-bottom: 14px; }
+  .contact-row:last-child { margin-bottom: 0; }
+  .contact-row .lbl { font-size: 12px; font-weight: 700; color: var(--gray); letter-spacing: 1.2px; margin-bottom: 4px; }
+  .contact-row .val { font-size: 17px; color: var(--anthrazit); font-weight: 500; }
+  .ready-cta { background: var(--brass); color: white; padding: 22px 32px; border-radius: 6px; text-align: center; font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 26px; letter-spacing: 0.5px; }
+  .ready-meta { font-size: 14px; color: var(--gray); text-align: center; margin-top: 20px; font-style: italic; }
+  @media print { body { background: white; padding: 0; } .deck { gap: 0; } .slide { box-shadow: none; page-break-after: always; } @page { size: 1280px 905px; margin: 0; } }
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- SLIDE 1 — VOORBLAD -->
+<div class="slide cover">
+  <div class="cover-luko">✦ LUKO SITE PATRON</div>
+  <div>
+    <h1 class="cover-title">Een website die<br>uitsluitend voor u<br>zou kunnen werken</h1>
+    <div class="cover-meta">
+      <div class="cover-subtitle">Site Patron 2026 — een voorstel voor Amazon-verkopers</div>
+      <p class="cover-desc">Een toegewijde website in uw niche. Exclusiviteit. Uw branding.<br>Direct B2B-kanaal, zonder commissie.<br>Werp een blik, beoordeel, beslis.</p>
+    </div>
+  </div>
+  <div class="cover-footer-block">
+    <div class="cover-brand">LUKO SITE PATRON</div>
+    <div class="cover-meta-line">NETANALIZA LTD · LK24 · {{DECK_DATE}}</div>
+  </div>
+  <div class="page-num">1 / 15</div>
+</div>
+
+<!-- SLIDE 2 — WAT IK AANBIED -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">WAT IK AANBIED</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Eén toegewijde website — van u, als u dat wilt</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Ik beheer een thematische website in uw niche. Die kan uitsluitend onder uw merk draaien. Hieronder: wat hij biedt + twee demoversies om te vergelijken.</p>
+    <h3 class="section-title">🎯 Wat de aangeboden website oplevert als u Patron wordt</h3>
+    <div class="benefits-grid">
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Alleen uw producten</strong> — geen concurrentie binnen het bereik</span></div>
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Uw logo + sectie „Over het merk"</strong> — bedrijfsgeschiedenis (materialen mag u aanleveren — hoeft niet)</span></div>
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Direct B2B-contact</strong> — zonder Amazon, zonder commissie</span></div>
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Alles aan onze kant</strong> — content, SEO, GEO, hosting, monitoring</span></div>
+    </div>
+    <h3 class="section-title">Wilt u het live zien? Ik heb twee demoversies om te vergelijken:</h3>
+    <div class="demos-grid">
+      <div class="demo-box yellow">
+        <div class="label">🟡 VERSIE A — PATRON  ●  LIVE</div>
+        <a class="url" href="{{DEMO_URL_A}}" target="_blank" rel="noopener">{{DEMO_URL_A}}</a>
+        <div class="desc">Zo ziet een patronage-website eruit. Alleen uw producten. Merkprofiel. B2B-contact.</div>
+      </div>
+      <div class="demo-box blue">
+        <div class="label">🔵 VERSIE B — MULTI-BRAND  ●  LIVE</div>
+        <a class="url" href="{{DEMO_URL_B}}" target="_blank" rel="noopener">{{DEMO_URL_B}}</a>
+        <div class="desc">Zo ziet de multi-brand website eruit (ter vergelijking). Uw producten naast 30+ concurrenten.</div>
+      </div>
+    </div>
+    <p class="footer-note">30 seconden werk: open beide links in nieuwe tabbladen. Inhoud en design zijn vrijwel identiek — het belangrijkste verschil zit in de productlijst en de merksectie.</p>
+  </div>
+  <div class="page-num">2 / 15</div>
+</div>
+
+<!-- SLIDE 3 — HET PROBLEEM -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">HET PROBLEEM</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Elke extra verkoop op Amazon<br>kost steeds meer</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Standaardmethoden om de verkoop te verhogen hebben allemaal hun eigen kosten. Allemaal. Elk op zijn manier.</p>
+    <div class="problems-list">
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Amazon Ads (CPC + ACOS).</strong> U betaalt voor elke klik. ACOS buiten de top-bestsellers ligt typisch tussen de 15 en 25 % — een deel van uw marge dat door advertenties wordt opgeslokt. Conversie is doorgaans 4-5 % (soms tot 10 %, maar zelden).</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Influencers en affiliates.</strong> U betaalt commissie op elke verkoop. Bij 200-1.000 bestellingen per maand is zelfs 5 % serieus geld. Bovendien is het vaak een eenmalig kanaal — één post en het is voorbij.</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Klassieke SEO-bureaus.</strong> 500-1.500 €/maand, resultaten pas in maand 6-12. Ze eisen lange contracten en doorlopende samenwerking. U kunt niet zomaar starten en stoppen wanneer u wilt.</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Display-advertising / banners.</strong> CPM hoog, conversie laag. Mensen negeren banners. Naamsbekendheid groeit minimaal — verkoop nog minder.</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Eigen merkwebsite.</strong> Vereist het aannemen van copywriters, ontwikkelaars, SEO- en AI-search-specialisten. Domein, hosting, onderhoud. Eerste resultaten na een jaar.</div></div>
+    </div>
+  </div>
+  <div class="page-num">3 / 15</div>
+</div>
+
+<!-- SLIDE 4 — DE OPLOSSING -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">DE OPLOSSING</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Site Patron — combineert de voordelen, schrapt de kosten</h1>
+    <div class="h1-line"></div>
+    <div class="solution-box">
+      <div class="lead"><span class="star-mark">✦</span>U huurt ruimte op een toegewijde website in uw niche — en alleen uw producten verschijnen daar.</div>
+      <p class="lead-detail">De website is geoptimaliseerd voor Google (SEO) en voor AI-zoekmachines: ChatGPT, Perplexity, Claude, Grok (dat is GEO). Al het verkeer gaat rechtstreeks naar uw producten op Amazon. U betaalt één vast, laag maandbedrag. Geen verkoopcommissie. Geen kosten voor het bouwen van de site. Geen onderhoudskosten.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="num">1</div><div class="title">Wij bouwen de site</div><div class="desc">Niche-onderzoek, zoekwoorden, klantgedrag. Content. Alles.</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step-card"><div class="num">2</div><div class="title">Klant zoekt een oplossing</div><div class="desc">Komt binnen via Google of AI-search. Leest de gids, ziet de aanbeveling.</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step-card"><div class="num">3</div><div class="title">Gaat naar Amazon en koopt</div><div class="desc">Klikt. Belandt op uw listing. Koopt. U handelt de bestelling af.</div></div>
+    </div>
+  </div>
+  <div class="page-num">4 / 15</div>
+</div>
+
+<!-- SLIDE 5 — DE CIJFERS -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">CIJFERS UIT ONZE LOPENDE PROJECTEN</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Een conversie die advertenties niet halen</h1>
+    <div class="h1-line"></div>
+    <div class="numbers-hero">
+      <div class="big-number">10–50 %</div>
+      <p class="numbers-subtitle">Zoveel mensen die op de Site Patron-pagina kwamen, klikten en kochten op Amazon. <strong>In specifieke niches met een goede klant/product-fit — 30-50 %.</strong></p>
+    </div>
+    <div class="bar-chart">
+      <div class="bar-col"><div class="bar-value">4–5 %</div><div class="bar gray" style="height: 24px;"></div><div class="bar-label">Amazon Ads — gemiddeld</div></div>
+      <div class="bar-col"><div class="bar-value">~10 %</div><div class="bar gray" style="height: 55px;"></div><div class="bar-label">Amazon Ads — top</div></div>
+      <div class="bar-col"><div class="bar-value">10–50 %</div><div class="bar brass" style="height: 220px;"></div><div class="bar-label">Site Patron</div></div>
+    </div>
+    <p class="why-text"><strong style="color: var(--anthrazit);">Waarom zo hoog?</strong> Mensen komen niet toevallig op onze site terecht — ze zoeken een concrete oplossing voor een concreet probleem. De site geeft hun precies dat antwoord en wijst ondubbelzinnig naar het product. Geen afleiding, geen 10 merken om te vergelijken, geen marketingholheid. Er is een gids, er is het product, er is de link naar Amazon.</p>
+  </div>
+  <div class="page-num">5 / 15</div>
+</div>
+
+<!-- SLIDE 6 — WAT DIT MODEL ONDERSCHEIDT -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">WAT DIT MODEL ONDERSCHEIDT</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">{{PRICE_MONTHLY_USD}} USD — en elke bestelling is gratis</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">In praktisch elke andere vorm van marketing en reclame brengt elke extra bestelling extra kosten met zich mee. Bij Site Patron — niet.</p>
+    <div class="differentiator-grid">
+      <div class="col-light">
+        <div class="col-title">Andere kanalen — kosten stijgen met elke bestelling</div>
+        <div class="channel-list">
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Amazon Ads (PPC)</strong> — CPC × elke klik</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Influencers / affiliates</strong> — % commissie × elke verkoop</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Google Ads / Facebook Ads</strong> — CPC × elke klik</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Display-advertising / banners</strong> — CPM × elke vertoning</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Nieuwsbrief / e-mailmarketing</strong> — kosten lijst × verzending</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>SEO-bureau</strong> — 500-1.500 €/maand + lange contracten</span></div>
+        </div>
+      </div>
+      <div class="col-dark">
+        <div class="col-title">LUKO Site Patron — vast tarief</div>
+        <div class="price-hero">{{PRICE_MONTHLY_USD}} USD</div>
+        <div class="price-sub">per maand — meer niet</div>
+        <div class="channel-list">
+          <div class="channel-item"><span class="check" style="color: var(--brass);">✓</span><span><strong style="color:white;">Elke bestelling vanaf de site</strong> — zonder extra kosten</span></div>
+          <div class="channel-item"><span class="check" style="color: var(--brass);">✓</span><span><strong style="color:white;">Elke vertoning</strong> — gratis</span></div>
+          <div class="channel-item"><span class="check" style="color: var(--brass);">✓</span><span><strong style="color:white;">Elke B2B-grootafnemer</strong> — zonder commissie</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="footer-text"><strong style="color: var(--anthrazit);">De logica is simpel:</strong> alle andere marketingkanalen schalen mee met de verkoop — hoe beter ze werken, hoe meer ze u kosten. Site Patron werkt andersom: hoe meer bestellingen de site oplevert, hoe meer het u oplevert. De prijs staat vast, zonder plafond.</p>
+  </div>
+  <div class="page-num">6 / 15</div>
+</div>
+
+<!-- SLIDE 7 — WAT U ZELF ZOU MOETEN DOEN -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">WAT U ZELF ZOU MOETEN DOEN</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1 smaller">Wij doen HET HELE werk — wat niet op de factuur staat</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">{{PRICE_MONTHLY_USD}} USD per maand is ongeveer 55 €. Hieronder: wat u daar werkelijk voor krijgt, en wat het u zou kosten om dit allemaal zelf te organiseren.</p>
+    <div class="compare-grid">
+      <div class="compare-card brass-top">
+        <div class="label">🟡 Site Patron — wij</div>
+        <div class="price">~55 € / maand</div>
+        <div class="compare-list">
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Niche- en zoekwoordonderzoek</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Schrijven en onderhouden van content</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Hosting, domein, monitoring, back-ups</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>SEO (Google) + GEO (AI-search)</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Schema.org, Core Web Vitals</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Doorlopende updates op trends</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Jarenlange ervaring in online marketing</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Resultaten bewezen op andere projecten</span></div>
+        </div>
+      </div>
+      <div class="compare-card gray-top">
+        <div class="label">🔵 Wat u zelf zou moeten regelen</div>
+        <div class="price muted">loont niet bij deze prijs</div>
+        <div class="compare-list">
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Uw werkuren</strong> (of die van uw medewerker) — onderzoek, schrijven, redactie, monitoring</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Tools die u sowieso nodig hebt:</strong> Ahrefs/Semrush (50-150 €/maand), server + domein, AI-content-tools, analytics</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Tijd alleen al om de niche binnen te komen</strong> — tientallen uren onderzoek naar klantgedrag, zoekwoorden, contentstructuur</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>SEO-bureau (alternatief):</strong> 500-1.500 €/maand, lange contracten, resultaten in maand 6-12</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Wijziging van het Google-algoritme?</strong> Uw probleem. Indexering door AI-search (ChatGPT, Perplexity)? Uw probleem.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">7 / 15</div>
+</div>
+
+<!-- SLIDE 8 — VOORDELEN 1-4 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">VOORDELEN 1–4</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Wat dit u concreet oplevert (deel 1)</h1>
+    <div class="h1-line"></div>
+    <div class="korzysci-grid">
+      <div class="korzysc-card"><div class="korzysc-num">1</div><div class="korzysc-content"><div class="title">Exclusieve aanwezigheid in uw niche</div><div class="desc">De site toont alleen uw producten binnen het bereik — geen concurrentie. Een klant die een oplossing zoekt komt op de site en ziet alleen u. Volle aandacht, ongestoorde aankoopbeslissing.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">2</div><div class="korzysc-content"><div class="title">Branding en merkautoriteit</div><div class="desc">Uw logo, een sectie „Over het merk" met bedrijfsgeschiedenis en productieproces, B2B-contact. De site bouwt een autoriteitspositie in de categorie — niet die van zomaar de zoveelste verkoper uit een lijst van 30 merken.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">3</div><div class="korzysc-content"><div class="title">Geen kosten voor het bouwen van de site</div><div class="desc">Niche-onderzoek, klantgedraganalyse, zoekwoorden, content (enkele duizenden woorden per subcategorie + merkprofiel + homepagina), foto's, layout — allemaal aan onze kant.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">4</div><div class="korzysc-content"><div class="title">Geen onderhoudskosten voor de site</div><div class="desc">Server, domein, beschikbaarheid, monitoring, beveiliging, back-ups — allemaal van ons. Komt er een fout — wij lossen die op. Komt er een seizoen, een trend, een nieuwe bestseller — wij voegen het toe.</div></div></div>
+    </div>
+  </div>
+  <div class="page-num">8 / 15</div>
+</div>
+
+<!-- SLIDE 9 — VOORDELEN 5-8 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">VOORDELEN 5–8</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Wat dit u concreet oplevert (deel 2)</h1>
+    <div class="h1-line"></div>
+    <div class="korzysci-grid">
+      <div class="korzysc-card"><div class="korzysc-num">5</div><div class="korzysc-content"><div class="title">Geen SEO- en AI-search-specialisten nodig</div><div class="desc">Het Google-algoritme verandert — dat is ons probleem. Indexering, GEO, Schema.org, Core Web Vitals, content-updates — alles aan onze kant. U neemt geen bureau of specialisten aan.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">6</div><div class="korzysc-content"><div class="title">Extra ruimte op het scherm van de klant</div><div class="desc">De klant zoekt, ziet 10 resultaten in Google. Als onze site daartussen springt — is dat één plek minder voor de concurrentie. De klant ziet alleen uw producten en de sectie „Over het merk".</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">7</div><div class="korzysc-content"><div class="title">BSR-verbetering op Amazon</div><div class="desc">Elke extra bestelling vanaf onze site verbetert uw BSR op de betreffende ASIN. En omdat de klant niet bij de concurrentie heeft gekocht — verslechtert hun BSR. Dubbel effect: u omhoog, zij omlaag.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">8</div><div class="korzysc-content"><div class="title">Geen juridische verantwoordelijkheid voor de site</div><div class="desc">Alles: content, hosting, AVG, informatieplichten, auteursrecht — aan onze kant. Het enige wat bij u blijft, zijn de materialen die u aanlevert (logo, merkbeschrijving).</div></div></div>
+    </div>
+  </div>
+  <div class="page-num">9 / 15</div>
+</div>
+
+<!-- SLIDE 10 — BONUS B2B -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">BONUS — EEN STERK ARGUMENT</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1 smaller">Direct B2B-kanaal met de Patron — zonder Amazon-commissie</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Wat een standaard Amazon-listing u niet biedt — en wat voor veel verkopers het sterkste argument vóór Site Patron is.</p>
+    <div class="bonus-grid">
+      <div class="bonus-col">
+        <div class="col-title">Wat er op de patron-site staat</div>
+        <div class="bonus-list">
+          <div class="bonus-list-item"><span>Bedrijfsprofiel met beschrijving van activiteit, geschiedenis, waarden</span></div>
+          <div class="bonus-list-item"><span>Direct contact: e-mail, telefoon, contactformulier</span></div>
+          <div class="bonus-list-item"><span>Oproep tot contact voor klanten die grotere bestellingen, B2B of groothandel zoeken</span></div>
+          <div class="bonus-list-item"><span>Knoppen „Direct contact opnemen" naast de productaanbevelingen</span></div>
+        </div>
+      </div>
+      <div class="bonus-col">
+        <div class="col-title">Wat dit u in de praktijk oplevert</div>
+        <div class="bonus-list">
+          <div class="bonus-list-item"><span>Grootafnemers ({{B2B_BUYERS_NOM}}) schrijven u rechtstreeks aan</span></div>
+          <div class="bonus-list-item"><span>Verkoop buiten Amazon = zonder 15 % commissie, zonder beperkingen van het platform</span></div>
+          <div class="bonus-list-item"><span>Mogelijkheid tot prijsonderhandeling en B2B-facturering tussen bedrijven</span></div>
+          <div class="bonus-list-item"><span>Vaste klant in uw portfolio — herhalingsbestellingen zonder Amazon-kosten</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="example-box">
+      <div class="example-label">EEN CONCREET VOORBEELD</div>
+      <p class="example-text">Een klant bestelt een set van {{B2B_QUANTITY}} {{B2B_PRODUCT_PL}} (bijvoorbeeld voor {{B2B_BUYERS_GEN}}). <strong>Op Amazon:</strong> hij koopt stuk voor stuk, elk belast met 15 % Amazon-commissie + platformbeperkingen. <strong>Rechtstreeks van de Patron via de site:</strong> één B2B-factuur tussen bedrijven, zonder commissie, ruimte voor prijsonderhandeling bij grotere aantallen. Pure winst + een nieuw zakelijk contact in uw portfolio.</p>
+    </div>
+  </div>
+  <div class="page-num">10 / 15</div>
+</div>
+
+<!-- SLIDE 11 — EXCLUSIVITEIT -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">EXCLUSIVITEIT</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Exclusiviteit betekent exclusiviteit</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Wat er precies verandert na uw „ja" — en wat er gebeurt als u het abonnement beëindigt.</p>
+    <div class="exclusivity-grid">
+      <div class="exclusivity-col before-state">
+        <div class="state-label">ZONDER PATRON (NU)</div>
+        <div class="state-desc">Site B (multi-brand) staat online en presenteert producten van veel merken. Uw producten staan daar als één van 30+ aanbiedingen. De klant ziet iedereen, de keuze raakt versnipperd.</div>
+        <div class="brand-grid">
+          <div class="brand-chip">Merk A</div>
+          <div class="brand-chip">Merk B</div>
+          <div class="brand-chip">Merk C</div>
+          <div class="brand-chip">Merk D</div>
+          <div class="brand-chip others" style="grid-column: 1 / -1;">+ 26 anderen</div>
+        </div>
+      </div>
+      <div class="exclusivity-col after-state">
+        <div class="state-label">MET SITE PATRON</div>
+        <div class="state-desc">Site A (gepatronaad) toont ALLEEN uw producten. Site B (multi-brand) wordt voor de duur van het abonnement UITGESCHAKELD. De klant ziet alleen u.</div>
+        <div class="exclusive-banner"><div class="text">ALLEEN UW PRODUCTEN</div></div>
+      </div>
+    </div>
+    <p class="footer-text"><strong style="color: var(--anthrazit);">Contractuele waarborgen (clausules 24, 27, 31):</strong> na beëindiging van het abonnement worden uw materialen (logo, sectie „Over het merk") binnen 14 dagen verwijderd. Site A keert terug naar de multi-brand-modus. Site A kan dan aan een andere verkoper als patronage worden aangeboden (zonder verplichting tot exclusiviteit jegens u na beëindiging — clausule 27.2). Maar zolang u betaalt — is exclusiviteit exclusiviteit. Plus anti-kannibalisatie: tijdens het abonnement nemen wij geen concurrent op een verwarrend gelijkend domein aan (clausule 15).</p>
+  </div>
+  <div class="page-num">11 / 15</div>
+</div>
+
+<!-- SLIDE 12 — JURIDISCHE ASPECTEN -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">JURIDISCHE ASPECTEN</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Hoe Amazon werkt op onze site</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Kort over waarom het tonen van Amazon-producten op onze site rechtmatig is — en wat dat betekent voor u als verkoper.</p>
+    <div class="legal-box">
+      <div class="legal-title">📋 Tonen van Amazon-producten — juridische basis</div>
+      <p>Het tonen van producten van Amazon op onze site — hun foto's, prijzen, titels en beschrijvingen — wordt geregeld door <strong>mijn affiliateovereenkomst met Amazon</strong> (Amazon EU Associates Programme IP Licence). Deze overeenkomst geeft mij het recht producten van het Amazon-platform legaal te presenteren binnen de redactionele content van mijn site.</p>
+      <p><strong>Wat dat in de praktijk betekent:</strong> Amazon verleent mij een licentie om producten te tonen. Een verkoper (u, uw concurrentie, wie dan ook) kan niet blokkeren dat ik bepaalde producten van het platform toon. Dat is tussen Amazon en mij — u bent hier geen partij in.</p>
+      <p><strong>Wat dit u als Patron oplevert:</strong> zekerheid dat de site op een stevige juridische basis werkt. De exclusiviteit van producten binnen het bereik is een aanvullende dienst die u koopt — wij verbinden ons ertoe geen concurrentie te tonen tijdens uw abonnement (clausule 14.1 van het contract). Zonder uw abonnement — blijft de multi-brand-versie staan, is legaal, werkt.</p>
+    </div>
+    <p class="footer-text" style="margin-top: 20px;"><em>Clausules om te controleren in het contract: 5 (Aard van de site), 7 (Onafhankelijkheid van Amazon-affiliatie), 16 (Amazon-content en compliance).</em></p>
+  </div>
+  <div class="page-num">12 / 15</div>
+</div>
+
+<!-- SLIDE 13 — PRIJS -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">PRIJS — DIT IS EEN NO-BRAINER</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Eén plan. Twee opties. Vast tarief.</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Geen commissie. Geen CPC. Geen verborgen kosten. 30-dagen-niet-goed-geld-terug-garantie = nul risico.</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="plan-name">Maandelijks</div>
+        <div class="price-big">{{PRICE_MONTHLY_USD}} USD</div>
+        <div class="price-period">per maand</div>
+        <div class="price-divider"></div>
+        <div class="price-meta">Min. periode: 3 maanden ({{PRICE_MIN_3M_USD}} USD)<br>Automatische verlenging tot annulering</div>
+      </div>
+      <div class="price-card recommended">
+        <div class="recommended-tag">AANBEVOLEN — U BESPAART {{PRICE_SAVINGS_USD}} USD</div>
+        <div class="plan-name">Jaarlijks</div>
+        <div class="price-big">{{PRICE_YEARLY_USD}} USD</div>
+        <div class="price-period">per jaar</div>
+        <div class="price-divider"></div>
+        <div class="price-meta">Min. periode: 1 jaar<br>Automatische verlenging tot annulering</div>
+      </div>
+    </div>
+    <div class="pricing-bottom">
+      <div class="pricing-bottom-list">
+        <strong>Dit is een klassieke „no-brainer":</strong> &nbsp;
+        <span class="check">✓</span> <strong>Nul risico:</strong> 30-dagen-niet-goed-geld-terug-garantie op de eerste betaling &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>Geen verplichting:</strong> opzeggen met één klik in het paneel of per e-mail &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>Lage instapdrempel:</strong> ~55 €/maand — minder dan één uur van een SEO-specialist &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>De site bestaat al</strong> — u wacht geen maanden tot er iets gaat gebeuren &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>Elke bestelling vanaf de site</strong> — zonder extra kosten (slide 6)<br>
+        <em style="color: var(--gray);">Betaling: Stripe of PayPal, factuur automatisch na verwerking.</em>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">13 / 15</div>
+</div>
+
+<!-- SLIDE 14 — VOLGENDE STAPPEN -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">VOLGENDE STAPPEN</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Hoe te beginnen — in 5 stappen, in 2-3 dagen</h1>
+    <div class="h1-line"></div>
+    <div class="timeline-grid">
+      <div class="timeline-card"><div class="num">01</div><div class="title">Plankeuze per e-mail</div><div class="desc">U antwoordt op de e-mail met uw keuze (maandelijks / jaarlijks) of met vragen.</div><div class="tag">DAG 0</div></div>
+      <div class="timeline-card"><div class="num">02</div><div class="title">Betaling</div><div class="desc">Ik stuur een checkout-link (Stripe / PayPal). U betaalt vooraf. De factuur komt direct retour.</div><div class="tag">DAG 1</div></div>
+      <div class="timeline-card"><div class="num">03</div><div class="title">Logo + merkbeschrijving</div><div class="desc">U stuurt uw logo (SVG/PNG) en 2-3 zinnen over het merk.</div><div class="tag">DAG 1–2</div></div>
+      <div class="timeline-card"><div class="num">04</div><div class="title">Exclusiviteit actief</div><div class="desc">Site A toont alleen u. Site B is uitgeschakeld.</div><div class="tag">DAG 2–3</div></div>
+      <div class="timeline-card"><div class="num">05</div><div class="title">Eerste rapport</div><div class="desc">Na 30 dagen — een rapport met de cijfers. Daarna maandelijks.</div><div class="tag">+30 DAGEN</div></div>
+    </div>
+    <p class="next-footer">Op dit moment bied ik dit uitsluitend aan u aan. Ik wacht op uw beslissing of uw vragen. Binnenkort, mocht er geen antwoord komen, bied ik Site Patron ook aan andere verkopers in deze categorie aan — maar vandaag is het onderwerp alleen voor u.</p>
+  </div>
+  <div class="page-num">14 / 15</div>
+</div>
+
+<!-- SLIDE 15 — KLAAR OM TE PRATEN? -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">KLAAR OM TE PRATEN?</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Beginnen we?</h1>
+    <div class="h1-line"></div>
+    <p class="ready-subtitle">De websites staan al online. Werp een blik. Open de pdf. Antwoord wanneer het u aanstaat.<br>Conversie doorgaans tweecijferig. Vast tarief. Opzeggen met één klik.</p>
+    <div class="contact-grid">
+      <div class="contact-col">
+        <div class="ttl">📧 CONTACT</div>
+        <div class="contact-row"><div class="lbl">E-MAIL</div><div class="val">service@netanaliza.com</div></div>
+        <div class="contact-row"><div class="lbl">WHATSAPP</div><div class="val">+48 795 055 173</div></div>
+        <div class="contact-row"><div class="lbl">WEB</div><div class="val">rekl-ama.pl</div></div>
+      </div>
+      <div class="contact-col">
+        <div class="ttl">🏢 EXPLOITANT</div>
+        <div class="contact-row"><div class="lbl">BEDRIJF</div><div class="val">NETANALIZA LTD</div></div>
+        <div class="contact-row"><div class="lbl">ADRES</div><div class="val">71-75 Shelton Street, Covent Garden, WC2H 9JQ, London, UK</div></div>
+        <div class="contact-row"><div class="lbl">COMPANY NO.</div><div class="val">16499220</div></div>
+      </div>
+    </div>
+    <div class="ready-cta">ANTWOORD OP DEZE E-MAIL EN WE GAAN VAN START</div>
+    <p class="ready-meta">Łukasz Koronczok · NETANALIZA LTD · {{DECK_DATE}}</p>
+  </div>
+  <div class="page-num">15 / 15</div>
+</div>
+
+</div>
+</body>
+</html>
