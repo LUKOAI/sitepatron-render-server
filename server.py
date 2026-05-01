@@ -1,5 +1,5 @@
 """
-SitePatron Deck Render Service v1.3.3
+SitePatron Deck Render Service v1.3.4
 ======================================
 
 Flask endpoint który renderuje Sosenco-style PDF z HTML template'ów.
@@ -7,10 +7,17 @@ Apps Script wysyła POST z wartościami per-klient + językiem,
 serwer zwraca PDF jako binary LUB wgrywa do Drive (jeśli klient
 prześle drive_folder_id).
 
+ZMIANY v1.3.4:
+- FIX FALLBACK: gdy brak template dla danego języka, fallback to teraz
+  EN (a nie PL jak wcześniej). PL pozostaje jako ostateczne fallback
+  (gdyby EN też nie istniał - praktycznie niemożliwe).
+- B2B_FALLBACK: zmieniony default z "pl" na "en" (linia w apply_b2b_fallback).
+- MONTHS: zmieniony default z "en" na "en" (już było OK, bez zmian).
+- Wersja bumped na 1.3.4 w /health.
+
 ZMIANY v1.3.3:
 - B2B_FALLBACK rozszerzony o klucze "en" i "de" (do tej pory tylko "pl").
   Teraz wszystkie 3 jezyki maja pelny fallback gdy fields B2B w arkuszu sa puste.
-- Wersja bumped na 1.3.3 w /health.
 
 ZMIANY v1.3.2:
 - Klient moze przeslac `pdf_filename` w payload (bez .pdf na koncu lub z).
@@ -84,6 +91,56 @@ MONTHS = {
            "July", "August", "September", "October", "November", "December"],
     "de": ["Januar", "Februar", "März", "April", "Mai", "Juni",
            "Juli", "August", "September", "Oktober", "November", "Dezember"],
+    "fr": ["janvier", "février", "mars", "avril", "mai", "juin",
+           "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
+    "es": ["enero", "febrero", "marzo", "abril", "mayo", "junio",
+           "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
+    "it": ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno",
+           "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"],
+    "nl": ["januari", "februari", "maart", "april", "mei", "juni",
+           "juli", "augustus", "september", "oktober", "november", "december"],
+    "sv": ["januari", "februari", "mars", "april", "maj", "juni",
+           "juli", "augusti", "september", "oktober", "november", "december"],
+    "da": ["januar", "februar", "marts", "april", "maj", "juni",
+           "juli", "august", "september", "oktober", "november", "december"],
+    "no": ["januar", "februar", "mars", "april", "mai", "juni",
+           "juli", "august", "september", "oktober", "november", "desember"],
+    "fi": ["tammikuu", "helmikuu", "maaliskuu", "huhtikuu", "toukokuu", "kesäkuu",
+           "heinäkuu", "elokuu", "syyskuu", "lokakuu", "marraskuu", "joulukuu"],
+    "et": ["jaanuar", "veebruar", "märts", "aprill", "mai", "juuni",
+           "juuli", "august", "september", "oktoober", "november", "detsember"],
+    "lt": ["sausis", "vasaris", "kovas", "balandis", "gegužė", "birželis",
+           "liepa", "rugpjūtis", "rugsėjis", "spalis", "lapkritis", "gruodis"],
+    "lv": ["janvāris", "februāris", "marts", "aprīlis", "maijs", "jūnijs",
+           "jūlijs", "augusts", "septembris", "oktobris", "novembris", "decembris"],
+    "cs": ["leden", "únor", "březen", "duben", "květen", "červen",
+           "červenec", "srpen", "září", "říjen", "listopad", "prosinec"],
+    "sk": ["január", "február", "marec", "apríl", "máj", "jún",
+           "júl", "august", "september", "október", "november", "december"],
+    "sl": ["januar", "februar", "marec", "april", "maj", "junij",
+           "julij", "avgust", "september", "oktober", "november", "december"],
+    "hr": ["siječanj", "veljača", "ožujak", "travanj", "svibanj", "lipanj",
+           "srpanj", "kolovoz", "rujan", "listopad", "studeni", "prosinac"],
+    "hu": ["január", "február", "március", "április", "május", "június",
+           "július", "augusztus", "szeptember", "október", "november", "december"],
+    "ro": ["ianuarie", "februarie", "martie", "aprilie", "mai", "iunie",
+           "iulie", "august", "septembrie", "octombrie", "noiembrie", "decembrie"],
+    "bg": ["януари", "февруари", "март", "април", "май", "юни",
+           "юли", "август", "септември", "октомври", "ноември", "декември"],
+    "el": ["Ιανουάριος", "Φεβρουάριος", "Μάρτιος", "Απρίλιος", "Μάιος", "Ιούνιος",
+           "Ιούλιος", "Αύγουστος", "Σεπτέμβριος", "Οκτώβριος", "Νοέμβριος", "Δεκέμβριος"],
+    "tr": ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+           "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"],
+    "pt": ["janeiro", "fevereiro", "março", "abril", "maio", "junho",
+           "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"],
+    "ar": ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+           "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+    "ja": ["1月", "2月", "3月", "4月", "5月", "6月",
+           "7月", "8月", "9月", "10月", "11月", "12月"],
+    "ko": ["1월", "2월", "3월", "4월", "5월", "6월",
+           "7월", "8월", "9월", "10월", "11월", "12월"],
+    "zh": ["1月", "2月", "3月", "4月", "5月", "6月",
+           "7月", "8月", "9月", "10月", "11月", "12月"],
 }
 
 # ============================================================
@@ -287,10 +344,19 @@ def get_deck_date(language: str) -> str:
 
 
 def get_template_path(language: str) -> Path:
+    """
+    Find HTML template for the given language.
+
+    Search order:
+      1. Exact match: sitepatron-deck-{LANG}-template.html
+      2. Fallback: EN template (was PL in v1.3.3 and earlier — fixed in v1.3.4)
+      3. Last resort: PL template (kept for safety)
+      4. Any HTML file in templates/
+    """
     candidates = [
         TEMPLATES_DIR / f"sitepatron-deck-{language.upper()}-template.html",
-        TEMPLATES_DIR / "sitepatron-deck-PL-template.html",
-        TEMPLATES_DIR / "sitepatron-deck-EN-template.html",
+        TEMPLATES_DIR / "sitepatron-deck-EN-template.html",   # ← v1.3.4: EN przed PL
+        TEMPLATES_DIR / "sitepatron-deck-PL-template.html",   # ← ostatecznie PL
     ]
     for c in candidates:
         if c.exists():
@@ -353,13 +419,26 @@ def normalize_url(url: str) -> str:
 
 
 def apply_b2b_fallback(html: str, values: dict, language: str) -> tuple:
+    """
+    Apply B2B field fallback when fields are empty.
+
+    v1.3.4: default fallback is now EN (was PL). This affects languages outside
+    PL/EN/DE — they will get English B2B fallback text.
+    Note: the fallback strings won't match the HTML for non-PL/EN/DE languages
+    anyway (each template has its own B2B text), so this only matters for the
+    "did we substitute or not" logic. Substitution will be a no-op for those
+    languages because the EN strings won't match their HTML.
+    For full proper handling: each template should use B2B_BUYERS_NOM placeholder
+    consistently, and apply_b2b_fallback should match generic patterns.
+    """
     b2b_filled = {f: str(values.get(f, "")).strip() for f in B2B_FIELDS}
     all_filled = all(v != "" for v in b2b_filled.values())
 
     new_values = dict(values)
 
     if not all_filled:
-        fallback = B2B_FALLBACK.get(language, B2B_FALLBACK["pl"])
+        # v1.3.4: fallback EN zamiast PL
+        fallback = B2B_FALLBACK.get(language, B2B_FALLBACK["en"])
 
         if fallback["bullet_old"] in html:
             html = html.replace(fallback["bullet_old"], fallback["bullet_new"])
@@ -400,11 +479,13 @@ def health():
     drive_service = get_drive_service()
     return jsonify({
         "status": "ok",
-        "version": "1.3.3",
+        "version": "1.3.4",
         "templates": templates,
         "api_key_required": bool(API_KEY),
         "playwright": "ready",
         "b2b_fallback_languages": sorted(B2B_FALLBACK.keys()),
+        "months_languages": sorted(MONTHS.keys()),
+        "fallback_chain": "EN -> PL (v1.3.4)",
         "drive_upload_enabled": drive_service is not None,
         "drive_service_account_email": get_service_account_email(),
         "drive_libs_available": DRIVE_LIBS_AVAILABLE,
@@ -441,6 +522,7 @@ def render():
     try:
         template_path = get_template_path(language)
         html = template_path.read_text(encoding="utf-8")
+        log.info(f"Render: language={language}, template={template_path.name}")
     except Exception as e:
         return jsonify({"error": f"Template error: {e}"}), 500
 
@@ -516,11 +598,13 @@ def render():
 # ============================================================
 
 if __name__ == "__main__":
-    log.info(f"Starting SitePatron Render Service v1.3.3 on port {PORT}")
+    log.info(f"Starting SitePatron Render Service v1.3.4 on port {PORT}")
     log.info(f"Templates dir: {TEMPLATES_DIR}")
     log.info(f"API key required: {bool(API_KEY)}")
     log.info(f"Available templates: {[f.name for f in TEMPLATES_DIR.glob('*.html')]}")
     log.info(f"B2B fallback languages: {sorted(B2B_FALLBACK.keys())}")
+    log.info(f"MONTHS languages: {sorted(MONTHS.keys())}")
+    log.info(f"Fallback chain: EN -> PL")
     log.info(f"Drive libs available: {DRIVE_LIBS_AVAILABLE}")
     drive_svc = get_drive_service()
     log.info(f"Drive upload enabled: {drive_svc is not None}")
