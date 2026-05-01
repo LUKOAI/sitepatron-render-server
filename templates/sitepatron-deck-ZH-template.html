@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SitePatron Deck v2 — Sosenco-style</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&display=block" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F8F6F1; --cream-bar: #EDE7DC; --bg: #E5DFD0;
+    --anthrazit: #1A2A3A; --anthrazit-light: #2A3F58;
+    --brass: #C9A961; --brass-light: #E6D7AF; --brass-bg: #F4EDD9;
+    --text: #1A2A3A; --gray: #5F6978; --gray-light: #9aa3b0;
+    --red: #C43C3C; --green: #4C915F; --blue: #6482B4; --white: #FFFFFF;
+    --shadow: 0 2px 6px rgba(26, 42, 58, 0.06);
+    --shadow-strong: 0 6px 24px rgba(26, 42, 58, 0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: auto; }
+  body { background: var(--bg); font-family: 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif; color: var(--text); line-height: 1.5; padding: 30px 0; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  .deck { display: flex; flex-direction: column; align-items: center; gap: 30px; }
+  .slide { width: 1280px; height: 905px; background: var(--cream); position: relative; overflow: hidden; box-shadow: var(--shadow-strong); page-break-after: always; flex-shrink: 0; }
+  .header-bar { position: absolute; top: 0; left: 0; right: 0; height: 56px; background: var(--cream-bar); display: flex; align-items: center; justify-content: space-between; padding: 0 60px; }
+  .header-label { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--brass); text-transform: uppercase; }
+  .luko-tag { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--brass); }
+  .slide-content { padding: 86px 60px 56px; height: 100%; display: flex; flex-direction: column; }
+  .h1 { font-family: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif; font-weight: 700; font-size: 60px; line-height: 1.1; color: var(--anthrazit); margin-bottom: 18px; letter-spacing: -0.8px; }
+  .h1.smaller { font-size: 50px; }
+  .h1-line { height: 2px; background: var(--brass); margin-bottom: 24px; width: 100%; }
+  .subtitle { font-size: 19px; line-height: 1.55; color: var(--gray); margin-bottom: 28px; max-width: 1100px; }
+  .section-title { font-size: 19px; font-weight: 600; color: var(--anthrazit); margin-bottom: 14px; }
+  .page-num { position: absolute; bottom: 22px; right: 60px; font-size: 12px; color: var(--gray-light); letter-spacing: 0.5px; z-index: 5; }
+  .check { color: var(--green); font-weight: 700; font-size: 18px; }
+  .x-mark { color: var(--red); font-weight: 700; font-size: 20px; }
+  .plus-mark { color: var(--brass); font-weight: 700; font-size: 20px; }
+  .cover { background: var(--cream); padding: 70px 90px 90px; display: flex; flex-direction: column; justify-content: space-between; }
+  .cover-luko { position: absolute; top: 60px; right: 90px; font-size: 14px; font-weight: 700; letter-spacing: 2px; color: var(--brass); }
+  .cover-title { font-family: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif; font-weight: 700; font-size: 96px; line-height: 1.05; color: var(--anthrazit); letter-spacing: -2.5px; margin-top: 60px; }
+  .cover-meta { margin-top: 40px; }
+  .cover-subtitle { font-size: 28px; color: var(--brass); font-weight: 600; margin-bottom: 16px; letter-spacing: 0.3px; }
+  .cover-desc { font-size: 22px; line-height: 1.55; color: var(--anthrazit); max-width: 800px; }
+  .cover-footer-block { border-top: 2px solid var(--brass); padding-top: 16px; width: 360px; }
+  .cover-brand { font-size: 14px; font-weight: 700; color: var(--anthrazit); letter-spacing: 6px; word-spacing: 8px; margin-bottom: 7px; }
+  .cover-meta-line { font-size: 11px; color: var(--gray); letter-spacing: 5px; word-spacing: 8px; text-transform: uppercase; }
+  .benefits-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 40px; margin-bottom: 34px; }
+  .benefit-item { display: flex; gap: 14px; align-items: flex-start; font-size: 17px; line-height: 1.5; }
+  .benefit-item .icon { color: var(--green); font-weight: 700; flex-shrink: 0; font-size: 18px; }
+  .benefit-item strong { color: var(--anthrazit); font-weight: 600; }
+  .demos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 18px; }
+  .demo-box { background: white; border-radius: 8px; padding: 22px 28px; border: 2px solid; box-shadow: var(--shadow); }
+  .demo-box.yellow { border-color: var(--brass); }
+  .demo-box.blue { border-color: var(--blue); }
+  .demo-box .label { font-size: 14px; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 10px; }
+  .demo-box.yellow .label { color: var(--brass); }
+  .demo-box.blue .label { color: var(--blue); }
+  .demo-box .url { display: block; text-decoration: none; font-size: 21px; font-weight: 700; color: var(--anthrazit); margin-bottom: 10px; font-family: 'Inter', 'Noto Sans SC', monospace; }
+  .demo-box .url:hover { color: var(--blue); }
+  .demo-box .desc { font-size: 15px; color: var(--gray); line-height: 1.5; }
+  .footer-note { font-size: 14.5px; color: var(--gray); font-style: italic; margin-top: auto; }
+  .problems-list { display: flex; flex-direction: column; gap: 22px; margin-top: 8px; }
+  .problem-item { display: flex; gap: 20px; align-items: flex-start; }
+  .problem-item .icon { color: var(--red); font-weight: 700; font-size: 24px; flex-shrink: 0; line-height: 1; margin-top: 4px; }
+  .problem-item .text { flex: 1; font-size: 17px; line-height: 1.55; color: var(--gray); }
+  .problem-item .text strong { color: var(--anthrazit); font-weight: 700; font-size: 18px; }
+  .solution-box { background: var(--anthrazit); color: white; padding: 36px 42px; border-radius: 8px; margin-bottom: 36px; position: relative; }
+  .solution-box .lead { font-family: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif; font-weight: 600; font-size: 32px; line-height: 1.3; margin-bottom: 16px; color: white; }
+  .solution-box .lead-detail { font-size: 18px; line-height: 1.6; color: rgba(255,255,255,0.85); }
+  .solution-box .star-mark { color: var(--brass); font-size: 32px; margin-right: 8px; }
+  .steps-grid { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 14px; align-items: stretch; }
+  .step-card { background: white; border-radius: 8px; padding: 26px 22px; text-align: center; border-top: 3px solid var(--brass); box-shadow: var(--shadow); }
+  .step-card .num { font-family: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif; font-weight: 700; font-size: 46px; color: var(--brass); line-height: 1; margin-bottom: 12px; }
+  .step-card .title { font-size: 18px; font-weight: 700; color: var(--anthrazit); margin-bottom: 8px; }
+  .step-card .desc { font-size: 14px; color: var(--gray); line-height: 1.5; }
+  .step-arrow { align-self: center; color: var(--brass); font-size: 32px; font-weight: 300; }
+  .numbers-hero { text-align: center; margin: 18px 0 38px; }
+  .big-number { font-family: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif; font-weight: 700; font-size: 140px; line-height: 1; color: var(--anthrazit); letter-spacing: -4px; margin-bottom: 12px; }
+  .numbers-subtitle { font-size: 19px; color: var(--gray); max-width: 900px; margin: 0 auto; line-height: 1.5; }
+  .numbers-subtitle strong { color: var(--anthrazit); }
+  .bar-chart { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 80px; align-items: end; height: 240px; padding: 0 100px; margin-bottom: 32px; }
+  .bar-col { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+  .bar-value { font-family: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif; font-weight: 600; font-size: 28px; color: var(--anthrazit); margin-bottom: 10px; }
+  .bar { width: 100%; border-radius: 4px 4px 0 0; box-shadow: var(--shadow); }
+  .bar.gray { background: var(--gray); }
+  .bar.brass { background: var(--brass); }
+  .bar-label { font-size: 15px; color: var(--gray); margin-top: 14px; text-align: center; font-weight: 500; }
+  .why-text { font-size: 16px; color: var(--gray); line-height: 1.55; margin-top: auto; }
+  .differentiator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 26px; }
+  .col-light { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .col-dark { background: var(--anthrazit); color: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .col-title { font-size: 16px; font-weight: 600; color: var(--gray); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #E5E0D5; }
+  .col-dark .col-title { color: var(--brass); border-bottom: 1px solid rgba(201,169,97,0.3); }
+  .channel-list { display: flex; flex-direction: column; gap: 14px; }
+  .channel-item { display: flex; gap: 14px; align-items: flex-start; font-size: 16px; line-height: 1.45; }
+  .channel-item .x-mark { font-size: 18px; line-height: 1.4; }
+  .channel-item strong { color: var(--anthrazit); font-weight: 600; }
+  .price-hero { font-family: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif; font-weight: 700; font-size: 64px; color: var(--brass); line-height: 1; margin: 10px 0 6px; }
+  .price-sub { font-size: 17px; color: rgba(255,255,255,0.75); margin-bottom: 22px; }
+  .col-dark .channel-item .check { color: var(--brass); }
+  .col-dark .channel-item { color: rgba(255,255,255,0.92); }
+  .col-dark .channel-item strong { color: white; }
+  .footer-text { font-size: 15px; color: var(--gray); line-height: 1.55; margin-top: auto; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-bottom: 18px; }
+  .compare-card { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .compare-card.brass-top { border-top: 4px solid var(--brass); }
+  .compare-card.gray-top { border-top: 4px solid var(--gray-light); background: #F5F2EB; }
+  .compare-card .label { font-size: 14px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .compare-card.brass-top .label { color: var(--brass); }
+  .compare-card.gray-top .label { color: var(--gray); }
+  .compare-card .price { font-family: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif; font-weight: 700; font-size: 30px; color: var(--anthrazit); margin-bottom: 18px; }
+  .compare-card .price.muted { color: var(--gray); font-size: 21px; font-style: italic; font-weight: 500; }
+  .compare-list { display: flex; flex-direction: column; gap: 11px; }
+  .compare-list-item { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.45; }
+  .compare-list-item .icon { flex-shrink: 0; width: 18px; text-align: center; }
+  .korzysci-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 8px; }
+  .korzysc-card { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); border-left: 4px solid var(--brass); display: flex; gap: 20px; align-items: flex-start; }
+  .korzysc-num { font-family: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif; font-weight: 700; font-size: 50px; color: var(--brass); line-height: 1; flex-shrink: 0; width: 60px; }
+  .korzysc-content .title { font-size: 19px; font-weight: 700; color: var(--anthrazit); margin-bottom: 8px; }
+  .korzysc-content .desc { font-size: 15px; color: var(--gray); line-height: 1.5; }
+  .bonus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-bottom: 24px; }
+  .bonus-col { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .bonus-col .col-title { font-size: 15px; font-weight: 700; color: var(--brass); letter-spacing: 0.5px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #E5E0D5; text-transform: uppercase; }
+  .bonus-list { display: flex; flex-direction: column; gap: 13px; }
+  .bonus-list-item { display: flex; gap: 12px; font-size: 16px; line-height: 1.45; color: var(--anthrazit); }
+  .bonus-list-item::before { content: "•"; color: var(--brass); font-weight: 700; flex-shrink: 0; font-size: 18px; }
+  .example-box { background: var(--brass-bg); border-left: 4px solid var(--brass); padding: 22px 28px; border-radius: 4px; }
+  .example-label { font-size: 13px; font-weight: 700; letter-spacing: 1.4px; color: var(--brass); margin-bottom: 10px; }
+  .example-text { font-size: 15.5px; line-height: 1.55; color: var(--anthrazit); }
+  .exclusivity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-bottom: 18px; }
+  .exclusivity-col { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .exclusivity-col.before-state { background: #F5F2EB; opacity: 0.85; }
+  .exclusivity-col .state-label { font-size: 14px; font-weight: 700; letter-spacing: 0.6px; margin-bottom: 8px; }
+  .exclusivity-col.before-state .state-label { color: var(--gray); }
+  .exclusivity-col.after-state .state-label { color: var(--brass); }
+  .exclusivity-col .state-desc { font-size: 15px; color: var(--gray); line-height: 1.5; margin-bottom: 18px; }
+  .brand-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .brand-chip { background: white; border: 1px solid #E5E0D5; padding: 10px 14px; border-radius: 4px; font-size: 14px; color: var(--gray); text-align: center; }
+  .brand-chip.others { background: transparent; color: var(--gray-light); font-style: italic; border: 1px dashed #D5D0C0; }
+  .exclusive-banner { background: var(--anthrazit); color: white; padding: 28px 32px; border-radius: 6px; text-align: center; margin-top: 14px; }
+  .exclusive-banner .text { font-family: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif; font-weight: 700; font-size: 28px; color: var(--brass); letter-spacing: 0.8px; }
+  .legal-box { background: white; border-radius: 8px; padding: 32px 38px; box-shadow: var(--shadow); border-left: 5px solid var(--brass); }
+  .legal-box .legal-title { font-size: 20px; font-weight: 700; color: var(--brass); margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #E5E0D5; }
+  .legal-box p { font-size: 17px; line-height: 1.65; color: var(--anthrazit); margin-bottom: 16px; }
+  .legal-box p:last-child { margin-bottom: 0; }
+  .legal-box p strong { color: var(--brass); font-weight: 700; }
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 24px; margin-top: 8px; }
+  .price-card { background: white; border-radius: 10px; padding: 34px 38px; box-shadow: var(--shadow); text-align: center; position: relative; }
+  .price-card.recommended { border: 2px solid var(--brass); box-shadow: var(--shadow-strong); }
+  .recommended-tag { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); background: var(--brass); color: white; font-size: 13px; font-weight: 700; letter-spacing: 1.2px; padding: 7px 18px; border-radius: 4px; white-space: nowrap; }
+  .price-card .plan-name { font-family: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif; font-weight: 600; font-size: 32px; color: var(--anthrazit); margin-bottom: 16px; }
+  .price-card .price-big { font-family: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif; font-weight: 700; font-size: 76px; color: var(--anthrazit); line-height: 1; letter-spacing: -2.5px; }
+  .price-card .price-period { font-size: 18px; color: var(--gray); margin: 8px 0 18px; }
+  .price-card .price-divider { width: 60%; height: 1px; background: #E5E0D5; margin: 8px auto 16px; }
+  .price-card .price-meta { font-size: 15px; color: var(--gray); line-height: 1.6; }
+  .pricing-bottom { background: var(--brass-bg); border-radius: 6px; padding: 18px 26px; }
+  .pricing-bottom-list { font-size: 14.5px; color: var(--anthrazit); line-height: 1.7; }
+  .pricing-bottom-list strong { color: var(--anthrazit); font-weight: 700; }
+  .timeline-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin: 18px 0 28px; }
+  .timeline-card { background: white; border-radius: 8px; padding: 24px 20px; box-shadow: var(--shadow); text-align: center; border-top: 3px solid var(--brass); position: relative; }
+  .timeline-card .num { font-family: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif; font-weight: 700; font-size: 42px; color: var(--brass); line-height: 1; margin-bottom: 12px; }
+  .timeline-card .title { font-size: 16px; font-weight: 700; color: var(--anthrazit); margin-bottom: 10px; line-height: 1.3; }
+  .timeline-card .desc { font-size: 13px; color: var(--gray); line-height: 1.5; margin-bottom: 14px; }
+  .timeline-card .tag { font-size: 11.5px; font-weight: 700; letter-spacing: 1px; color: var(--brass); background: var(--brass-bg); padding: 5px 12px; border-radius: 3px; display: inline-block; }
+  .next-footer { font-size: 16px; color: var(--gray); line-height: 1.55; font-style: italic; margin-top: auto; }
+  .ready-subtitle { font-size: 21px; color: var(--gray); line-height: 1.55; margin-bottom: 36px; }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 32px; }
+  .contact-col { background: white; border-radius: 8px; padding: 28px 32px; box-shadow: var(--shadow); }
+  .contact-col .ttl { font-size: 17px; font-weight: 700; color: var(--brass); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #E5E0D5; }
+  .contact-row { margin-bottom: 14px; }
+  .contact-row:last-child { margin-bottom: 0; }
+  .contact-row .lbl { font-size: 12px; font-weight: 700; color: var(--gray); letter-spacing: 1.2px; margin-bottom: 4px; }
+  .contact-row .val { font-size: 17px; color: var(--anthrazit); font-weight: 500; }
+  .ready-cta { background: var(--brass); color: white; padding: 22px 32px; border-radius: 6px; text-align: center; font-family: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif; font-weight: 700; font-size: 26px; letter-spacing: 0.5px; }
+  .ready-meta { font-size: 14px; color: var(--gray); text-align: center; margin-top: 20px; font-style: italic; }
+  @media print { body { background: white; padding: 0; } .deck { gap: 0; } .slide { box-shadow: none; page-break-after: always; } @page { size: 1280px 905px; margin: 0; } }
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- SLIDE 1 — OMSLAG -->
+<div class="slide cover">
+  <div class="cover-luko">✦ LUKO SITE PATRON</div>
+  <div>
+    <h1 class="cover-title">一个<br>可以仅为您<br>工作的网站</h1>
+    <div class="cover-meta">
+      <div class="cover-subtitle">Site Patron 2026 — 致 Amazon 卖家的提案</div>
+      <p class="cover-desc">您所在细分市场的专属网站。独占性。您的品牌。<br>直接 B2B 渠道,无佣金。<br>请查看、评估、决定。</p>
+    </div>
+  </div>
+  <div class="cover-footer-block">
+    <div class="cover-brand">LUKO SITE PATRON</div>
+    <div class="cover-meta-line">NETANALIZA LTD · LK24 · {{DECK_DATE}}</div>
+  </div>
+  <div class="page-num">1 / 15</div>
+</div>
+
+<!-- SLIDE 2 — 我提供什么 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">我提供什么</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">一个专属网站 — 如果您愿意,就是您的</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">我在您的细分市场运营一个主题网站。它可以仅在您的品牌下运行。以下:它提供什么 + 两个演示版本供比较。</p>
+    <h3 class="section-title">🎯 如果您成为赞助人,所提供的网站会给您什么</h3>
+    <div class="benefits-grid">
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>仅您的产品</strong> — 范围内无竞争</span></div>
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>您的标志 + "关于品牌" 部分</strong> — 公司历史(您可以提供材料 — 但不是必须的)</span></div>
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>直接 B2B 联系</strong> — 无 Amazon,无佣金</span></div>
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>一切在我们这边</strong> — 内容、SEO、GEO、托管、监控</span></div>
+    </div>
+    <h3 class="section-title">想现场看看吗? 我有两个演示版本供比较:</h3>
+    <div class="demos-grid">
+      <div class="demo-box yellow">
+        <div class="label">🟡 版本 A — 赞助  ●  LIVE</div>
+        <a class="url" href="{{DEMO_URL_A}}" target="_blank" rel="noopener">{{DEMO_URL_A}}</a>
+        <div class="desc">这就是赞助网站的样子。仅您的产品。品牌档案。B2B 联系。</div>
+      </div>
+      <div class="demo-box blue">
+        <div class="label">🔵 版本 B — MULTI-BRAND  ●  LIVE</div>
+        <a class="url" href="{{DEMO_URL_B}}" target="_blank" rel="noopener">{{DEMO_URL_B}}</a>
+        <div class="desc">multi-brand 网站看起来是这样(供比较)。您的产品旁边有 30+ 个竞争对手。</div>
+      </div>
+    </div>
+    <p class="footer-note">30 秒的工作:在新标签页中打开两个链接。内容和设计非常相似 — 主要区别在于产品列表和品牌部分。</p>
+  </div>
+  <div class="page-num">2 / 15</div>
+</div>
+
+<!-- SLIDE 3 — 问题 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">问题</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Amazon 上每一次额外销售<br>都越来越贵</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">增加销售的标准方法都有各自的成本。所有方法。各以其方式。</p>
+    <div class="problems-list">
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Amazon Ads (CPC + ACOS).</strong> 您为每次点击付费。畅销榜外的 ACOS 通常在 15 到 25 % 之间 — 您的利润的一部分被广告吞噬。转化率通常为 4–5 %(有时高达 10 %,但很少)。</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>网红和 affiliate 合作伙伴。</strong> 您为每次销售支付佣金。每月 200–1 000 个订单时,即使 5 % 也是真金白银。而且这通常是一个偶发性渠道 — 一篇帖子就结束了。</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>传统的 SEO 代理。</strong> 每月 3 500–10 500 元,结果要到第 6–12 个月才出现。它们需要长期合同和持续合作。您不能随心所欲地开始和停止。</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>展示广告 / 横幅。</strong> CPM 高,转化率低。人们忽视横幅。品牌知名度增长最小 — 销售更少。</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>自有品牌网站。</strong> 需要您雇用文案撰稿人、开发人员、SEO 和 AI-search 专家。域名、托管、维护。一年后才能看到第一个结果。</div></div>
+    </div>
+  </div>
+  <div class="page-num">3 / 15</div>
+</div>
+
+<!-- SLIDE 4 — 解决方案 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">解决方案</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Site Patron — 结合优势,削减成本</h1>
+    <div class="h1-line"></div>
+    <div class="solution-box">
+      <div class="lead"><span class="star-mark">✦</span>您在您所在细分市场的专属网站上租用空间 — 那里只显示您的产品。</div>
+      <p class="lead-detail">网站为 Google(SEO)和 AI 搜索引擎(ChatGPT、Perplexity、Claude、Grok)优化(这就是 GEO)。所有流量直接流向您在 Amazon 上的产品。您支付固定的低月费。无销售佣金。无网站建设成本。无维护成本。</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="num">1</div><div class="title">我们建设网站</div><div class="desc">细分市场研究、关键词、客户行为。内容。一切。</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step-card"><div class="num">2</div><div class="title">客户寻找解决方案</div><div class="desc">来自 Google 或 AI 搜索。阅读指南,看到推荐。</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step-card"><div class="num">3</div><div class="title">前往 Amazon 购买</div><div class="desc">点击。登陆您的 listing。购买。您处理订单。</div></div>
+    </div>
+  </div>
+  <div class="page-num">4 / 15</div>
+</div>
+
+<!-- SLIDE 5 — SIFFRORNA -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">我们当前项目的数字</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">广告达不到的转化</h1>
+    <div class="h1-line"></div>
+    <div class="numbers-hero">
+      <div class="big-number">10–50 %</div>
+      <p class="numbers-subtitle">这么多访问 Site Patron 网站的人点击并在 Amazon 上购买。<strong>在客户/产品契合度良好的特定细分市场中 — 30–50 %。</strong></p>
+    </div>
+    <div class="bar-chart">
+      <div class="bar-col"><div class="bar-value">4–5 %</div><div class="bar gray" style="height: 24px;"></div><div class="bar-label">Amazon Ads — 平均</div></div>
+      <div class="bar-col"><div class="bar-value">~10 %</div><div class="bar gray" style="height: 55px;"></div><div class="bar-label">Amazon Ads — 最高</div></div>
+      <div class="bar-col"><div class="bar-value">10–50 %</div><div class="bar brass" style="height: 220px;"></div><div class="bar-label">Site Patron</div></div>
+    </div>
+    <p class="why-text"><strong style="color: var(--anthrazit);">为什么这么高?</strong> 人们不是偶然来到我们网站的 — 他们正在寻找具体问题的具体解决方案。网站给他们的正是这个答案,并明确地指出产品。没有分心,没有 10 个品牌可比较,没有营销承诺。有指南,有产品,有 Amazon 的链接。</p>
+  </div>
+  <div class="page-num">5 / 15</div>
+</div>
+
+<!-- SLIDE 6 — 这种模式的区别 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">这种模式的区别</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">{{PRICE_MONTHLY_USD}} USD — 每个订单都是免费的</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">在几乎所有其他形式的营销和广告中,每个额外订单都会产生额外成本。而 Site Patron — 不会。</p>
+    <div class="differentiator-grid">
+      <div class="col-light">
+        <div class="col-title">其他渠道 — 成本随每个订单增长</div>
+        <div class="channel-list">
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Amazon Ads (PPC)</strong> — CPC × 每次点击</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>网红 / affiliate</strong> — % 佣金 × 每次销售</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Google Ads / Facebook Ads</strong> — CPC × 每次点击</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>展示广告 / 横幅</strong> — CPM × 每次展示</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>通讯 / 电子邮件营销</strong> — 列表费 × 发送</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>SEO 代理</strong> — 每月 3 500–10 500 元 + 长期合同</span></div>
+        </div>
+      </div>
+      <div class="col-dark">
+        <div class="col-title">LUKO Site Patron — 固定费用</div>
+        <div class="price-hero">{{PRICE_MONTHLY_USD}} USD</div>
+        <div class="price-sub">每月 — 就这些</div>
+        <div class="channel-list">
+          <div class="channel-item"><span class="check" style="color: var(--brass);">✓</span><span><strong style="color:white;">来自网站的每个订单</strong> — 无额外成本</span></div>
+          <div class="channel-item"><span class="check" style="color: var(--brass);">✓</span><span><strong style="color:white;">每次展示</strong> — 免费</span></div>
+          <div class="channel-item"><span class="check" style="color: var(--brass);">✓</span><span><strong style="color:white;">每个 B2B 批发客户</strong> — 无佣金</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="footer-text"><strong style="color: var(--anthrazit);">逻辑很简单:</strong> 所有其他营销渠道都将成本与销售一起扩展 — 它们效果越好,您付出的越多。Site Patron 的工作方式相反:网站带来的订单越多,您获得的回报就越大。价格固定,无上限。</p>
+  </div>
+  <div class="page-num">6 / 15</div>
+</div>
+
+<!-- SLIDE 7 — 您必须自己做的事 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">您必须自己做的事</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1 smaller">我们做全部工作 — 发票上看不到的</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">{{PRICE_MONTHLY_USD}} USD 每月约 350 元。以下:这个价格您实际上能得到什么,以及您自己组织这一切的成本是多少。</p>
+    <div class="compare-grid">
+      <div class="compare-card brass-top">
+        <div class="label">🟡 Site Patron — 我们</div>
+        <div class="price">~350 元 / 月</div>
+        <div class="compare-list">
+          <div class="compare-list-item"><span class="icon check">✓</span><span>细分市场和关键词研究</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>内容撰写和维护</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>托管、域名、监控、备份</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>SEO(Google)+ GEO(AI 搜索)</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Schema.org, Core Web Vitals</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>根据趋势持续更新</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>多年在线营销经验</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>在其他项目中证实的结果</span></div>
+        </div>
+      </div>
+      <div class="compare-card gray-top">
+        <div class="label">🔵 您必须自己组织的事</div>
+        <div class="price muted">这个价格不值得</div>
+        <div class="compare-list">
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>您的工作时间</strong> (或您员工的)— 研究、写作、编辑、监控</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>您无论如何都需要的工具:</strong> Ahrefs/Semrush(每月 350–1 050 元)、服务器 + 域名、AI-content 工具、analytics</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>仅用于进入细分市场的时间</strong> — 关于客户行为、关键词、内容结构的数十小时研究</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>SEO 代理(替代方案):</strong> 每月 3 500–10 500 元、长期合同、第 6–12 个月有结果</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Google 算法变化?</strong> 您的问题。AI 搜索(ChatGPT、Perplexity)中的索引? 您的问题。</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">7 / 15</div>
+</div>
+
+<!-- SLIDE 8 — FÖRDELAR 1-4 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">优势 1–4</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">这具体给您什么(第 1 部分)</h1>
+    <div class="h1-line"></div>
+    <div class="korzysci-grid">
+      <div class="korzysc-card"><div class="korzysc-num">1</div><div class="korzysc-content"><div class="title">在您的细分市场中独家存在</div><div class="desc">网站仅在范围内显示您的产品 — 无竞争。寻找解决方案的客户登陆网站,只看到您。完全的关注,不受干扰的购买决定。</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">2</div><div class="korzysc-content"><div class="title">品牌和品牌权威</div><div class="desc">您的标志、带有公司历史和生产过程的 "关于品牌" 部分、B2B 联系。网站在类别中建立权威地位 — 不仅仅是 30 个品牌名单中的另一个卖家。</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">3</div><div class="korzysc-content"><div class="title">无网站建设成本</div><div class="desc">细分市场研究、客户行为分析、关键词、内容(每个子类别数千字 + 品牌档案 + 主页)、照片、布局 — 一切在我们这边。</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">4</div><div class="korzysc-content"><div class="title">无网站维护成本</div><div class="desc">服务器、域名、可用性、监控、安全、备份 — 全部归我们。出现错误 — 我们修复。来了一个季节、趋势、新的畅销书 — 我们添加。</div></div></div>
+    </div>
+  </div>
+  <div class="page-num">8 / 15</div>
+</div>
+
+<!-- SLIDE 9 — FÖRDELAR 5-8 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">优势 5–8</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">这具体给您什么(第 2 部分)</h1>
+    <div class="h1-line"></div>
+    <div class="korzysci-grid">
+      <div class="korzysc-card"><div class="korzysc-num">5</div><div class="korzysc-content"><div class="title">无需 SEO 和 AI-search 专家</div><div class="desc">Google 算法改变 — 那是我们的问题。索引、GEO、Schema.org、Core Web Vitals、内容更新 — 一切在我们这边。您既不雇用代理也不雇用专家。</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">6</div><div class="korzysc-content"><div class="title">客户屏幕上的额外空间</div><div class="desc">客户搜索,在 Google 上看到 10 个结果。如果我们的网站跳进去 — 这是竞争少了一个位置。客户只看到您的产品和 "关于品牌" 部分。</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">7</div><div class="korzysc-content"><div class="title">Amazon 上的 BSR 改善</div><div class="desc">来自我们网站的每个额外订单都会改善您在该 ASIN 上的 BSR。由于客户没有从竞争对手那里购买 — 他们的 BSR 恶化。双重效果:您上升,他们下降。</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">8</div><div class="korzysc-content"><div class="title">对网站无法律责任</div><div class="desc">一切:内容、托管、GDPR、信息义务、版权 — 在我们这边。您剩下的唯一是您提供的材料(标志、品牌描述)。</div></div></div>
+    </div>
+  </div>
+  <div class="page-num">9 / 15</div>
+</div>
+
+<!-- SLIDE 10 — BONUS B2B -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">奖金 — 一个强有力的论据</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1 smaller">与赞助人的直接 B2B 渠道 — 无 Amazon 佣金</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">标准 Amazon listing 不会给您的 — 对许多卖家来说,这是 Site Patron 最强有力的论据。</p>
+    <div class="bonus-grid">
+      <div class="bonus-col">
+        <div class="col-title">赞助网站上有什么</div>
+        <div class="bonus-list">
+          <div class="bonus-list-item"><span>带有活动描述、历史、价值观的公司档案</span></div>
+          <div class="bonus-list-item"><span>直接联系:电子邮件、电话、联系表格</span></div>
+          <div class="bonus-list-item"><span>为寻找更大订单、B2B、批发的客户提供联系号召</span></div>
+          <div class="bonus-list-item"><span>产品推荐旁的 "直接联系" 按钮</span></div>
+        </div>
+      </div>
+      <div class="bonus-col">
+        <div class="col-title">这实际上给您什么</div>
+        <div class="bonus-list">
+          <div class="bonus-list-item"><span>批发客户({{B2B_BUYERS_NOM}})直接给您写信</span></div>
+          <div class="bonus-list-item"><span>Amazon 外的销售 = 无 15 % 佣金,无平台限制</span></div>
+          <div class="bonus-list-item"><span>在公司之间协商价格和开 B2B 发票的可能性</span></div>
+          <div class="bonus-list-item"><span>您组合中的稳定客户 — 无 Amazon 成本的重复订单</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="example-box">
+      <div class="example-label">一个具体的例子</div>
+      <p class="example-text">客户订购一套: {{B2B_QUANTITY}} {{B2B_PRODUCT_PL}} (例如 {{B2B_BUYERS_GEN}}). <strong>在 Amazon 上:</strong>逐个购买,每件都带有 15 % Amazon 佣金 + 平台限制。 <strong>通过网站直接从赞助人:</strong> 公司之间的一张 B2B 发票、无佣金、更大批量协商价格的空间。纯利润 + 您组合中的新业务联系。</p>
+    </div>
+  </div>
+  <div class="page-num">10 / 15</div>
+</div>
+
+<!-- SLIDE 11 — 独占性 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">独占性</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">独占性意味着独占性</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">您说 "是" 后究竟会改变什么 — 以及如果您终止订阅会发生什么。</p>
+    <div class="exclusivity-grid">
+      <div class="exclusivity-col before-state">
+        <div class="state-label">无赞助人(现在)</div>
+        <div class="state-desc">网站 B(multi-brand)在线,展示许多品牌的产品。您的产品作为 30+ 个报价之一在那里。客户看到所有人,决定被分散。</div>
+        <div class="brand-grid">
+          <div class="brand-chip">品牌 A</div>
+          <div class="brand-chip">品牌 B</div>
+          <div class="brand-chip">品牌 C</div>
+          <div class="brand-chip">品牌 D</div>
+          <div class="brand-chip others" style="grid-column: 1 / -1;">+ 还有 26 个</div>
+        </div>
+      </div>
+      <div class="exclusivity-col after-state">
+        <div class="state-label">使用 SITE PATRON</div>
+        <div class="state-desc">网站 A(赞助)只显示您的产品。网站 B(multi-brand)在整个订阅期间被禁用。客户只看到您。</div>
+        <div class="exclusive-banner"><div class="text">只有您的产品</div></div>
+      </div>
+    </div>
+    <p class="footer-text"><strong style="color: var(--anthrazit);">合同保护(条款 24、27、31):</strong> 订阅终止后,我们将在 14 天内删除您的材料(标志、"关于品牌" 部分)。网站 A 返回 multi-brand 模式。网站 A 然后可以提供给另一个卖家作为赞助(终止后对您无独占义务 — 条款 27.2)。但只要您付款 — 独占性就是独占性。加上反同类相食:订阅期间,我们不接受在容易混淆相似域名上的竞争对手(条款 15)。</p>
+  </div>
+  <div class="page-num">11 / 15</div>
+</div>
+
+<!-- SLIDE 12 — 法律方面 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">法律方面</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Amazon 如何在我们的网站上工作</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">简要说明为什么在我们网站上展示 Amazon 产品是合法的 — 以及这对您作为卖家意味着什么。</p>
+    <div class="legal-box">
+      <div class="legal-title">📋 Amazon 产品展示 — 法律依据</div>
+      <p>我们网站上 Amazon 产品的展示 — 它们的照片、价格、标题和描述 — 由<strong>我与 Amazon 的 affiliate 协议</strong>(Amazon EU Associates Programme IP Licence)管辖。这项协议赋予我在我网站的编辑内容中合法展示 Amazon 平台产品的权利。</p>
+      <p><strong>这在实践中意味着什么:</strong> Amazon 授予我展示产品的许可。卖家(您、您的竞争对手、任何人)不能阻止我展示平台上的某些产品。这是 Amazon 和我之间的事 — 您在这里不是当事方。</p>
+      <p><strong>这作为赞助人给您什么:</strong> 网站在强大的法律基础上运作的安心感。范围内产品的独占性是您购买的额外服务 — 我们承诺在您的订阅期间不展示竞争对手(协议条款 14.1)。没有您的订阅 — multi-brand 版本仍然存在,合法,运行。</p>
+    </div>
+    <p class="footer-text" style="margin-top: 20px;"><em>协议中要核对的条款:5(网站性质)、7(从 Amazon affiliate 的独立性)、16(Amazon 内容和合规)。</em></p>
+  </div>
+  <div class="page-num">12 / 15</div>
+</div>
+
+<!-- SLIDE 13 — PRIS -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">价格 — 这是一个 "no-brainer"</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">一个计划。两个选项。固定费用。</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">无佣金。无 CPC。无隐藏成本。30 天退款保证 = 零风险。</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="plan-name">月付</div>
+        <div class="price-big">{{PRICE_MONTHLY_USD}} USD</div>
+        <div class="price-period">每月</div>
+        <div class="price-divider"></div>
+        <div class="price-meta">最短期限:3 个月({{PRICE_MIN_3M_USD}} USD)<br>自动续订直到取消</div>
+      </div>
+      <div class="price-card recommended">
+        <div class="recommended-tag">推荐 — 节省 {{PRICE_SAVINGS_USD}} USD</div>
+        <div class="plan-name">年付</div>
+        <div class="price-big">{{PRICE_YEARLY_USD}} USD</div>
+        <div class="price-period">每年</div>
+        <div class="price-divider"></div>
+        <div class="price-meta">最短期限:1 年<br>自动续订直到取消</div>
+      </div>
+    </div>
+    <div class="pricing-bottom">
+      <div class="pricing-bottom-list">
+        <strong>这是一个经典的 "no-brainer":</strong> &nbsp;
+        <span class="check">✓</span> <strong>零风险:</strong> 从第一次付款起 30 天退款保证 &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>无承诺:</strong> 在面板中一键取消或通过电子邮件取消 &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>低进入门槛:</strong> ~每月 350 元 — 比 SEO 专家一小时的工作更便宜 &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>网站已经存在</strong> — 您不需要等几个月让某事开始发生 &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>来自网站的每个订单</strong> — 无额外成本 (slide 6)<br>
+        <em style="color: var(--gray);">付款:Stripe 或 PayPal,入账后自动开发票。</em>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">13 / 15</div>
+</div>
+
+<!-- SLIDE 14 — 下一步 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">下一步</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">如何开始 — 5 步骤,2–3 天内</h1>
+    <div class="h1-line"></div>
+    <div class="timeline-grid">
+      <div class="timeline-card"><div class="num">01</div><div class="title">通过电子邮件选择计划</div><div class="desc">您用您的选择(月付 / 年付)或问题回复电子邮件。</div><div class="tag">第 0 天</div></div>
+      <div class="timeline-card"><div class="num">02</div><div class="title">付款</div><div class="desc">我发送 checkout 链接(Stripe / PayPal)。您预付。发票立即到达。</div><div class="tag">第 1 天</div></div>
+      <div class="timeline-card"><div class="num">03</div><div class="title">标志 + 品牌描述</div><div class="desc">您发送标志(SVG/PNG)和关于品牌的 2–3 句话。</div><div class="tag">第 1 天–2</div></div>
+      <div class="timeline-card"><div class="num">04</div><div class="title">独占性激活</div><div class="desc">网站 A 只显示您。网站 B 被禁用。</div><div class="tag">第 2–3 天</div></div>
+      <div class="timeline-card"><div class="num">05</div><div class="title">第一份报告</div><div class="desc">30 天后 — 带有数字的报告。然后每月。</div><div class="tag">+30 天</div></div>
+    </div>
+    <p class="next-footer">目前我只独家提供给您。我等待您的决定或问题。很快,如果没有回复,我也会向这个类别的其他卖家提供 Site Patron — 但今天的主题只属于您。</p>
+  </div>
+  <div class="page-num">14 / 15</div>
+</div>
+
+<!-- SLIDE 15 — 准备好谈话了吗? -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">准备好谈话了吗?</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">我们开始吗?</h1>
+    <div class="h1-line"></div>
+    <p class="ready-subtitle">网站已经在线。看一看。打开 PDF。在您方便的时候回复。<br>转化率通常是两位数。固定价格。一键取消。</p>
+    <div class="contact-grid">
+      <div class="contact-col">
+        <div class="ttl">📧 KONTAKT</div>
+        <div class="contact-row"><div class="lbl">电子邮件</div><div class="val">service@netanaliza.com</div></div>
+        <div class="contact-row"><div class="lbl">WHATSAPP</div><div class="val">+48 795 055 173</div></div>
+        <div class="contact-row"><div class="lbl">网站</div><div class="val">rekl-ama.pl</div></div>
+      </div>
+      <div class="contact-col">
+        <div class="ttl">🏢 运营商</div>
+        <div class="contact-row"><div class="lbl">公司</div><div class="val">NETANALIZA LTD</div></div>
+        <div class="contact-row"><div class="lbl">地址</div><div class="val">71-75 Shelton Street, Covent Garden, WC2H 9JQ, London, UK</div></div>
+        <div class="contact-row"><div class="lbl">COMPANY NO.</div><div class="val">16499220</div></div>
+      </div>
+    </div>
+    <div class="ready-cta">回复此电子邮件,我们就开始</div>
+    <p class="ready-meta">Łukasz Koronczok · NETANALIZA LTD · {{DECK_DATE}}</p>
+  </div>
+  <div class="page-num">15 / 15</div>
+</div>
+
+</div>
+</body>
+</html>
