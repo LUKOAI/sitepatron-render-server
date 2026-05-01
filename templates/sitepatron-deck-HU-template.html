@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SitePatron Deck v2 — Sosenco-style</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&display=block" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F8F6F1; --cream-bar: #EDE7DC; --bg: #E5DFD0;
+    --anthrazit: #1A2A3A; --anthrazit-light: #2A3F58;
+    --brass: #C9A961; --brass-light: #E6D7AF; --brass-bg: #F4EDD9;
+    --text: #1A2A3A; --gray: #5F6978; --gray-light: #9aa3b0;
+    --red: #C43C3C; --green: #4C915F; --blue: #6482B4; --white: #FFFFFF;
+    --shadow: 0 2px 6px rgba(26, 42, 58, 0.06);
+    --shadow-strong: 0 6px 24px rgba(26, 42, 58, 0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: auto; }
+  body { background: var(--bg); font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--text); line-height: 1.5; padding: 30px 0; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  .deck { display: flex; flex-direction: column; align-items: center; gap: 30px; }
+  .slide { width: 1280px; height: 905px; background: var(--cream); position: relative; overflow: hidden; box-shadow: var(--shadow-strong); page-break-after: always; flex-shrink: 0; }
+  .header-bar { position: absolute; top: 0; left: 0; right: 0; height: 56px; background: var(--cream-bar); display: flex; align-items: center; justify-content: space-between; padding: 0 60px; }
+  .header-label { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--brass); text-transform: uppercase; }
+  .luko-tag { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--brass); }
+  .slide-content { padding: 86px 60px 56px; height: 100%; display: flex; flex-direction: column; }
+  .h1 { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 60px; line-height: 1.1; color: var(--anthrazit); margin-bottom: 18px; letter-spacing: -0.8px; }
+  .h1.smaller { font-size: 50px; }
+  .h1-line { height: 2px; background: var(--brass); margin-bottom: 24px; width: 100%; }
+  .subtitle { font-size: 19px; line-height: 1.55; color: var(--gray); margin-bottom: 28px; max-width: 1100px; }
+  .section-title { font-size: 19px; font-weight: 600; color: var(--anthrazit); margin-bottom: 14px; }
+  .page-num { position: absolute; bottom: 22px; right: 60px; font-size: 12px; color: var(--gray-light); letter-spacing: 0.5px; z-index: 5; }
+  .check { color: var(--green); font-weight: 700; font-size: 18px; }
+  .x-mark { color: var(--red); font-weight: 700; font-size: 20px; }
+  .plus-mark { color: var(--brass); font-weight: 700; font-size: 20px; }
+  .cover { background: var(--cream); padding: 70px 90px 90px; display: flex; flex-direction: column; justify-content: space-between; }
+  .cover-luko { position: absolute; top: 60px; right: 90px; font-size: 14px; font-weight: 700; letter-spacing: 2px; color: var(--brass); }
+  .cover-title { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 96px; line-height: 1.05; color: var(--anthrazit); letter-spacing: -2.5px; margin-top: 60px; }
+  .cover-meta { margin-top: 40px; }
+  .cover-subtitle { font-size: 28px; color: var(--brass); font-weight: 600; margin-bottom: 16px; letter-spacing: 0.3px; }
+  .cover-desc { font-size: 22px; line-height: 1.55; color: var(--anthrazit); max-width: 800px; }
+  .cover-footer-block { border-top: 2px solid var(--brass); padding-top: 16px; width: 360px; }
+  .cover-brand { font-size: 14px; font-weight: 700; color: var(--anthrazit); letter-spacing: 6px; word-spacing: 8px; margin-bottom: 7px; }
+  .cover-meta-line { font-size: 11px; color: var(--gray); letter-spacing: 5px; word-spacing: 8px; text-transform: uppercase; }
+  .benefits-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 40px; margin-bottom: 34px; }
+  .benefit-item { display: flex; gap: 14px; align-items: flex-start; font-size: 17px; line-height: 1.5; }
+  .benefit-item .icon { color: var(--green); font-weight: 700; flex-shrink: 0; font-size: 18px; }
+  .benefit-item strong { color: var(--anthrazit); font-weight: 600; }
+  .demos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 18px; }
+  .demo-box { background: white; border-radius: 8px; padding: 22px 28px; border: 2px solid; box-shadow: var(--shadow); }
+  .demo-box.yellow { border-color: var(--brass); }
+  .demo-box.blue { border-color: var(--blue); }
+  .demo-box .label { font-size: 14px; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 10px; }
+  .demo-box.yellow .label { color: var(--brass); }
+  .demo-box.blue .label { color: var(--blue); }
+  .demo-box .url { display: block; text-decoration: none; font-size: 21px; font-weight: 700; color: var(--anthrazit); margin-bottom: 10px; font-family: 'Inter', monospace; }
+  .demo-box .url:hover { color: var(--blue); }
+  .demo-box .desc { font-size: 15px; color: var(--gray); line-height: 1.5; }
+  .footer-note { font-size: 14.5px; color: var(--gray); font-style: italic; margin-top: auto; }
+  .problems-list { display: flex; flex-direction: column; gap: 22px; margin-top: 8px; }
+  .problem-item { display: flex; gap: 20px; align-items: flex-start; }
+  .problem-item .icon { color: var(--red); font-weight: 700; font-size: 24px; flex-shrink: 0; line-height: 1; margin-top: 4px; }
+  .problem-item .text { flex: 1; font-size: 17px; line-height: 1.55; color: var(--gray); }
+  .problem-item .text strong { color: var(--anthrazit); font-weight: 700; font-size: 18px; }
+  .solution-box { background: var(--anthrazit); color: white; padding: 36px 42px; border-radius: 8px; margin-bottom: 36px; position: relative; }
+  .solution-box .lead { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 32px; line-height: 1.3; margin-bottom: 16px; color: white; }
+  .solution-box .lead-detail { font-size: 18px; line-height: 1.6; color: rgba(255,255,255,0.85); }
+  .solution-box .star-mark { color: var(--brass); font-size: 32px; margin-right: 8px; }
+  .steps-grid { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 14px; align-items: stretch; }
+  .step-card { background: white; border-radius: 8px; padding: 26px 22px; text-align: center; border-top: 3px solid var(--brass); box-shadow: var(--shadow); }
+  .step-card .num { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 46px; color: var(--brass); line-height: 1; margin-bottom: 12px; }
+  .step-card .title { font-size: 18px; font-weight: 700; color: var(--anthrazit); margin-bottom: 8px; }
+  .step-card .desc { font-size: 14px; color: var(--gray); line-height: 1.5; }
+  .step-arrow { align-self: center; color: var(--brass); font-size: 32px; font-weight: 300; }
+  .numbers-hero { text-align: center; margin: 18px 0 38px; }
+  .big-number { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 140px; line-height: 1; color: var(--anthrazit); letter-spacing: -4px; margin-bottom: 12px; }
+  .numbers-subtitle { font-size: 19px; color: var(--gray); max-width: 900px; margin: 0 auto; line-height: 1.5; }
+  .numbers-subtitle strong { color: var(--anthrazit); }
+  .bar-chart { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 80px; align-items: end; height: 240px; padding: 0 100px; margin-bottom: 32px; }
+  .bar-col { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+  .bar-value { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 28px; color: var(--anthrazit); margin-bottom: 10px; }
+  .bar { width: 100%; border-radius: 4px 4px 0 0; box-shadow: var(--shadow); }
+  .bar.gray { background: var(--gray); }
+  .bar.brass { background: var(--brass); }
+  .bar-label { font-size: 15px; color: var(--gray); margin-top: 14px; text-align: center; font-weight: 500; }
+  .why-text { font-size: 16px; color: var(--gray); line-height: 1.55; margin-top: auto; }
+  .differentiator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 26px; }
+  .col-light { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .col-dark { background: var(--anthrazit); color: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .col-title { font-size: 16px; font-weight: 600; color: var(--gray); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #E5E0D5; }
+  .col-dark .col-title { color: var(--brass); border-bottom: 1px solid rgba(201,169,97,0.3); }
+  .channel-list { display: flex; flex-direction: column; gap: 14px; }
+  .channel-item { display: flex; gap: 14px; align-items: flex-start; font-size: 16px; line-height: 1.45; }
+  .channel-item .x-mark { font-size: 18px; line-height: 1.4; }
+  .channel-item strong { color: var(--anthrazit); font-weight: 600; }
+  .price-hero { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 64px; color: var(--brass); line-height: 1; margin: 10px 0 6px; }
+  .price-sub { font-size: 17px; color: rgba(255,255,255,0.75); margin-bottom: 22px; }
+  .col-dark .channel-item .check { color: var(--brass); }
+  .col-dark .channel-item { color: rgba(255,255,255,0.92); }
+  .col-dark .channel-item strong { color: white; }
+  .footer-text { font-size: 15px; color: var(--gray); line-height: 1.55; margin-top: auto; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-bottom: 18px; }
+  .compare-card { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .compare-card.brass-top { border-top: 4px solid var(--brass); }
+  .compare-card.gray-top { border-top: 4px solid var(--gray-light); background: #F5F2EB; }
+  .compare-card .label { font-size: 14px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .compare-card.brass-top .label { color: var(--brass); }
+  .compare-card.gray-top .label { color: var(--gray); }
+  .compare-card .price { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 30px; color: var(--anthrazit); margin-bottom: 18px; }
+  .compare-card .price.muted { color: var(--gray); font-size: 21px; font-style: italic; font-weight: 500; }
+  .compare-list { display: flex; flex-direction: column; gap: 11px; }
+  .compare-list-item { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.45; }
+  .compare-list-item .icon { flex-shrink: 0; width: 18px; text-align: center; }
+  .korzysci-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 8px; }
+  .korzysc-card { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); border-left: 4px solid var(--brass); display: flex; gap: 20px; align-items: flex-start; }
+  .korzysc-num { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 50px; color: var(--brass); line-height: 1; flex-shrink: 0; width: 60px; }
+  .korzysc-content .title { font-size: 19px; font-weight: 700; color: var(--anthrazit); margin-bottom: 8px; }
+  .korzysc-content .desc { font-size: 15px; color: var(--gray); line-height: 1.5; }
+  .bonus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-bottom: 24px; }
+  .bonus-col { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .bonus-col .col-title { font-size: 15px; font-weight: 700; color: var(--brass); letter-spacing: 0.5px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #E5E0D5; text-transform: uppercase; }
+  .bonus-list { display: flex; flex-direction: column; gap: 13px; }
+  .bonus-list-item { display: flex; gap: 12px; font-size: 16px; line-height: 1.45; color: var(--anthrazit); }
+  .bonus-list-item::before { content: "•"; color: var(--brass); font-weight: 700; flex-shrink: 0; font-size: 18px; }
+  .example-box { background: var(--brass-bg); border-left: 4px solid var(--brass); padding: 22px 28px; border-radius: 4px; }
+  .example-label { font-size: 13px; font-weight: 700; letter-spacing: 1.4px; color: var(--brass); margin-bottom: 10px; }
+  .example-text { font-size: 15.5px; line-height: 1.55; color: var(--anthrazit); }
+  .exclusivity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-bottom: 18px; }
+  .exclusivity-col { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .exclusivity-col.before-state { background: #F5F2EB; opacity: 0.85; }
+  .exclusivity-col .state-label { font-size: 14px; font-weight: 700; letter-spacing: 0.6px; margin-bottom: 8px; }
+  .exclusivity-col.before-state .state-label { color: var(--gray); }
+  .exclusivity-col.after-state .state-label { color: var(--brass); }
+  .exclusivity-col .state-desc { font-size: 15px; color: var(--gray); line-height: 1.5; margin-bottom: 18px; }
+  .brand-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .brand-chip { background: white; border: 1px solid #E5E0D5; padding: 10px 14px; border-radius: 4px; font-size: 14px; color: var(--gray); text-align: center; }
+  .brand-chip.others { background: transparent; color: var(--gray-light); font-style: italic; border: 1px dashed #D5D0C0; }
+  .exclusive-banner { background: var(--anthrazit); color: white; padding: 28px 32px; border-radius: 6px; text-align: center; margin-top: 14px; }
+  .exclusive-banner .text { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 28px; color: var(--brass); letter-spacing: 0.8px; }
+  .legal-box { background: white; border-radius: 8px; padding: 32px 38px; box-shadow: var(--shadow); border-left: 5px solid var(--brass); }
+  .legal-box .legal-title { font-size: 20px; font-weight: 700; color: var(--brass); margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #E5E0D5; }
+  .legal-box p { font-size: 17px; line-height: 1.65; color: var(--anthrazit); margin-bottom: 16px; }
+  .legal-box p:last-child { margin-bottom: 0; }
+  .legal-box p strong { color: var(--brass); font-weight: 700; }
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 24px; margin-top: 8px; }
+  .price-card { background: white; border-radius: 10px; padding: 34px 38px; box-shadow: var(--shadow); text-align: center; position: relative; }
+  .price-card.recommended { border: 2px solid var(--brass); box-shadow: var(--shadow-strong); }
+  .recommended-tag { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); background: var(--brass); color: white; font-size: 13px; font-weight: 700; letter-spacing: 1.2px; padding: 7px 18px; border-radius: 4px; white-space: nowrap; }
+  .price-card .plan-name { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 32px; color: var(--anthrazit); margin-bottom: 16px; }
+  .price-card .price-big { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 76px; color: var(--anthrazit); line-height: 1; letter-spacing: -2.5px; }
+  .price-card .price-period { font-size: 18px; color: var(--gray); margin: 8px 0 18px; }
+  .price-card .price-divider { width: 60%; height: 1px; background: #E5E0D5; margin: 8px auto 16px; }
+  .price-card .price-meta { font-size: 15px; color: var(--gray); line-height: 1.6; }
+  .pricing-bottom { background: var(--brass-bg); border-radius: 6px; padding: 18px 26px; }
+  .pricing-bottom-list { font-size: 14.5px; color: var(--anthrazit); line-height: 1.7; }
+  .pricing-bottom-list strong { color: var(--anthrazit); font-weight: 700; }
+  .timeline-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin: 18px 0 28px; }
+  .timeline-card { background: white; border-radius: 8px; padding: 24px 20px; box-shadow: var(--shadow); text-align: center; border-top: 3px solid var(--brass); position: relative; }
+  .timeline-card .num { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 42px; color: var(--brass); line-height: 1; margin-bottom: 12px; }
+  .timeline-card .title { font-size: 16px; font-weight: 700; color: var(--anthrazit); margin-bottom: 10px; line-height: 1.3; }
+  .timeline-card .desc { font-size: 13px; color: var(--gray); line-height: 1.5; margin-bottom: 14px; }
+  .timeline-card .tag { font-size: 11.5px; font-weight: 700; letter-spacing: 1px; color: var(--brass); background: var(--brass-bg); padding: 5px 12px; border-radius: 3px; display: inline-block; }
+  .next-footer { font-size: 16px; color: var(--gray); line-height: 1.55; font-style: italic; margin-top: auto; }
+  .ready-subtitle { font-size: 21px; color: var(--gray); line-height: 1.55; margin-bottom: 36px; }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 32px; }
+  .contact-col { background: white; border-radius: 8px; padding: 28px 32px; box-shadow: var(--shadow); }
+  .contact-col .ttl { font-size: 17px; font-weight: 700; color: var(--brass); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #E5E0D5; }
+  .contact-row { margin-bottom: 14px; }
+  .contact-row:last-child { margin-bottom: 0; }
+  .contact-row .lbl { font-size: 12px; font-weight: 700; color: var(--gray); letter-spacing: 1.2px; margin-bottom: 4px; }
+  .contact-row .val { font-size: 17px; color: var(--anthrazit); font-weight: 500; }
+  .ready-cta { background: var(--brass); color: white; padding: 22px 32px; border-radius: 6px; text-align: center; font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 26px; letter-spacing: 0.5px; }
+  .ready-meta { font-size: 14px; color: var(--gray); text-align: center; margin-top: 20px; font-style: italic; }
+  @media print { body { background: white; padding: 0; } .deck { gap: 0; } .slide { box-shadow: none; page-break-after: always; } @page { size: 1280px 905px; margin: 0; } }
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- SLIDE 1 — OMSLAG -->
+<div class="slide cover">
+  <div class="cover-luko">✦ LUKO SITE PATRON</div>
+  <div>
+    <h1 class="cover-title">Egy weboldal,<br>amely kizárólag<br>Önért dolgozhatna</h1>
+    <div class="cover-meta">
+      <div class="cover-subtitle">Site Patron 2026 — ajánlat Amazon-eladóknak</div>
+      <p class="cover-desc">Dedikált weboldal az Ön piaci résében. Exkluzivitás. Az Ön márkája.<br>Közvetlen B2B csatorna, jutalék nélkül.<br>Nézze meg, értékelje, döntsön.</p>
+    </div>
+  </div>
+  <div class="cover-footer-block">
+    <div class="cover-brand">LUKO SITE PATRON</div>
+    <div class="cover-meta-line">NETANALIZA LTD · LK24 · {{DECK_DATE}}</div>
+  </div>
+  <div class="page-num">1 / 15</div>
+</div>
+
+<!-- SLIDE 2 — AMIT KÍNÁLOK -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">AMIT KÍNÁLOK</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Egy dedikált weboldal — az Öné, ha szeretné</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Tematikus weboldalt üzemeltetek az Ön piaci résében. Működhet kizárólag az Ön márkája alatt. Alább: mit kínál + két demó verzió összehasonlításra.</p>
+    <h3 class="section-title">🎯 Mit nyújt a kínált weboldal, ha Ön Patrónussá válik</h3>
+    <div class="benefits-grid">
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Csak az Ön termékei</strong> — nincs konkurencia a Hatókörön belül</span></div>
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Az Ön logója + „A márkáról" rész</strong> — a cég története (anyagot küldhet — de nem kötelező)</span></div>
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Közvetlen B2B kapcsolat</strong> — Amazon nélkül, jutalék nélkül</span></div>
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Minden a mi oldalunkon</strong> — tartalom, SEO, GEO, tárhely, monitorozás</span></div>
+    </div>
+    <h3 class="section-title">Szeretné élőben látni? Két demó verzióm van összehasonlításra:</h3>
+    <div class="demos-grid">
+      <div class="demo-box yellow">
+        <div class="label">🟡 A VERZIÓ — PATRÓNUSI  ●  LIVE</div>
+        <a class="url" href="{{DEMO_URL_A}}" target="_blank" rel="noopener">{{DEMO_URL_A}}</a>
+        <div class="desc">Így néz ki egy patrónusi oldal. Csak az Ön termékei. Márka profil. B2B kapcsolat.</div>
+      </div>
+      <div class="demo-box blue">
+        <div class="label">🔵 B VERZIÓ — MULTI-BRAND  ●  LIVE</div>
+        <a class="url" href="{{DEMO_URL_B}}" target="_blank" rel="noopener">{{DEMO_URL_B}}</a>
+        <div class="desc">Így néz ki a multi-brand oldal (összehasonlításra). Az Ön termékei 30+ konkurens mellett.</div>
+      </div>
+    </div>
+    <p class="footer-note">30 másodperc munka: nyissa meg mindkét linket új lapokon. A tartalom és a dizájn nagyon hasonló — a fő különbség a terméklistában és a márka szekcióban van.</p>
+  </div>
+  <div class="page-num">2 / 15</div>
+</div>
+
+<!-- SLIDE 3 — A PROBLÉMA -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">A PROBLÉMA</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Minden további eladás az Amazonon<br>egyre többe kerül</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">A bevétel növelésére használt szokásos módszereknek mind megvannak a maguk költségei. Mindegyiknek. Mindegyiknek a maga módján.</p>
+    <div class="problems-list">
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Amazon Ads (CPC + ACOS).</strong> Minden kattintásért fizet. Az ACOS a top bestseller eken kívül tipikusan 15–25 % — az árrés egy darabját megeszi a hirdetés. A konverzió általában 4–5 % (néha 10 %-ig, de ritkán).</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Influencerek és affiliate partnerek.</strong> Minden eladás után jutalékot fizet. 200–1 000 rendelés/hónap esetén már 5 % is valódi pénz. És ez gyakran csak egy epizodikus csatorna — egy poszt és vége.</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Klasszikus SEO ügynökségek.</strong> 200 000–600 000 Ft/hó, eredmények csak a 6.–12. hónapban. Hosszú szerződéseket és folyamatos együttműködést követelnek. Nem lehet csak úgy elkezdeni és abbahagyni, amikor akarja.</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Display hirdetés / bannerek.</strong> CPM magas, konverzió alacsony. Az emberek figyelmen kívül hagyják a bannereket. A márkaismertség minimálisan nő — az eladás még kevésbé.</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Saját márka weboldal.</strong> Szövegírók, fejlesztők, SEO- és AI-search-specialisták felvételét igényli. Domain, tárhely, karbantartás. Első eredmények egy év múlva.</div></div>
+    </div>
+  </div>
+  <div class="page-num">3 / 15</div>
+</div>
+
+<!-- SLIDE 4 — A MEGOLDÁS -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">A MEGOLDÁS</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Site Patron — egyesíti az előnyöket, levágja a költségeket</h1>
+    <div class="h1-line"></div>
+    <div class="solution-box">
+      <div class="lead"><span class="star-mark">✦</span>Helyet bérel egy dedikált weboldalon az Ön piaci résében — és csak az Ön termékei jelennek meg ott.</div>
+      <p class="lead-detail">A weboldal Google-re (SEO) és AI keresőkre van optimalizálva: ChatGPT, Perplexity, Claude, Grok (ez a GEO). Minden látogató közvetlenül az Ön Amazon termékeihez kerül. Egy fix, alacsony havi díjat fizet. Nincs eladási jutalék. Nincs weboldal-építési költség. Nincs karbantartási költség.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="num">1</div><div class="title">Mi építjük az Oldalt</div><div class="desc">Piaci rés kutatás, kulcsszavak, vásárlói viselkedés. Tartalom. Minden.</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step-card"><div class="num">2</div><div class="title">Az ügyfél megoldást keres</div><div class="desc">Google-ből vagy AI keresőből érkezik. Elolvassa az útmutatót, látja az ajánlást.</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step-card"><div class="num">3</div><div class="title">Az Amazonra megy és vásárol</div><div class="desc">Kattint. Az Ön listingjén landol. Vásárol. Ön teljesíti a rendelést.</div></div>
+    </div>
+  </div>
+  <div class="page-num">4 / 15</div>
+</div>
+
+<!-- SLIDE 5 — SIFFRORNA -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">SZÁMOK A JELENLEGI PROJEKTJEINKBŐL</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Konverzió, amit a hirdetések nem érnek el</h1>
+    <div class="h1-line"></div>
+    <div class="numbers-hero">
+      <div class="big-number">10–50 %</div>
+      <p class="numbers-subtitle">Ennyi ember, aki meglátogatta a Site Patron oldalt, kattintott és vásárolt az Amazonon. <strong>Konkrét piaci résekben jó vásárló/termék illeszkedéssel — 30–50 %.</strong></p>
+    </div>
+    <div class="bar-chart">
+      <div class="bar-col"><div class="bar-value">4–5 %</div><div class="bar gray" style="height: 24px;"></div><div class="bar-label">Amazon Ads — átlag</div></div>
+      <div class="bar-col"><div class="bar-value">~10 %</div><div class="bar gray" style="height: 55px;"></div><div class="bar-label">Amazon Ads — csúcs</div></div>
+      <div class="bar-col"><div class="bar-value">10–50 %</div><div class="bar brass" style="height: 220px;"></div><div class="bar-label">Site Patron</div></div>
+    </div>
+    <p class="why-text"><strong style="color: var(--anthrazit);">Miért ilyen magas?</strong> Az emberek nem véletlenül kerülnek az Oldalunkra — konkrét megoldást keresnek egy konkrét problémára. Az Oldal pontosan ezt a választ adja és egyértelműen rámutat a termékre. Nincs figyelemelterelés, nincs 10 márka összehasonlítása, nincsenek marketing ígéretek. Van egy útmutató, van a termék, van a link az Amazonra.</p>
+  </div>
+  <div class="page-num">5 / 15</div>
+</div>
+
+<!-- SLIDE 6 — MIBEN KÜLÖNBÖZIK EZ A MODELL -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">MIBEN KÜLÖNBÖZIK EZ A MODELL</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">{{PRICE_MONTHLY_USD}} USD — és minden rendelés ingyenes</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Gyakorlatilag minden más marketing és reklám formában minden további rendelés további költséget generál. A Site Patron esetében — nem.</p>
+    <div class="differentiator-grid">
+      <div class="col-light">
+        <div class="col-title">Más csatornák — a költség minden rendeléssel nő</div>
+        <div class="channel-list">
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Amazon Ads (PPC)</strong> — CPC × minden kattintás</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Influencerek / affiliate</strong> — % jutalék × minden eladás</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Google Ads / Facebook Ads</strong> — CPC × minden kattintás</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Display hirdetés / bannerek</strong> — CPM × minden megjelenítés</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Hírlevél / e-mail marketing</strong> — listadíj × kiküldés</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>SEO ügynökség</strong> — 200 000–600 000 Ft/hó + hosszú szerződések</span></div>
+        </div>
+      </div>
+      <div class="col-dark">
+        <div class="col-title">LUKO Site Patron — fix díj</div>
+        <div class="price-hero">{{PRICE_MONTHLY_USD}} USD</div>
+        <div class="price-sub">havonta — és ennyi</div>
+        <div class="channel-list">
+          <div class="channel-item"><span class="check" style="color: var(--brass);">✓</span><span><strong style="color:white;">Minden rendelés az Oldalról</strong> — plusz költség nélkül</span></div>
+          <div class="channel-item"><span class="check" style="color: var(--brass);">✓</span><span><strong style="color:white;">Minden megjelenítés</strong> — ingyenes</span></div>
+          <div class="channel-item"><span class="check" style="color: var(--brass);">✓</span><span><strong style="color:white;">Minden B2B nagykereskedelmi ügyfél</strong> — jutalék nélkül</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="footer-text"><strong style="color: var(--anthrazit);">A logika egyszerű:</strong> minden más marketing csatorna a költséget az eladással együtt skálázza — minél jobban működnek, annál többe kerülnek. A Site Patron fordítva működik: minél több rendelést hoz az Oldal, annál jobban megéri Önnek. Az ár fix, plafon nélkül.</p>
+  </div>
+  <div class="page-num">6 / 15</div>
+</div>
+
+<!-- SLIDE 7 — AMIT ÖNNEK MAGÁNAK KELLENE INTÉZNIE -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">AMIT ÖNNEK MAGÁNAK KELLENE INTÉZNIE</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1 smaller">Mi végezzük az EGÉSZ munkát — amit a számlán nem lát</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">{{PRICE_MONTHLY_USD}} USD havonta körülbelül 20 000 Ft. Alább: mit kap valójában ezért az árért, és mibe kerülne mindezt magának megszerveznie.</p>
+    <div class="compare-grid">
+      <div class="compare-card brass-top">
+        <div class="label">🟡 Site Patron — mi</div>
+        <div class="price">~20 000 Ft / hó</div>
+        <div class="compare-list">
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Piaci rés és kulcsszó kutatás</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Tartalom írása és karbantartása</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Tárhely, domain, monitorozás, biztonsági mentések</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>SEO (Google) + GEO (AI keresés)</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Schema.org, Core Web Vitals</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Folyamatos frissítések a trendek szerint</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Több éves online marketing tapasztalat</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Más projekteken igazolt eredmények</span></div>
+        </div>
+      </div>
+      <div class="compare-card gray-top">
+        <div class="label">🔵 Amit magának kellene megszerveznie</div>
+        <div class="price muted">ezen az áron nem éri meg</div>
+        <div class="compare-list">
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Az Ön munkaórái</strong> (vagy az alkalmazottjáé) — kutatás, írás, szerkesztés, monitorozás</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Eszközök, amelyekre úgyis szüksége van:</strong> Ahrefs/Semrush (20 000–60 000 Ft/hó), szerver + domain, AI-content eszközök, analitika</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Idő csak a piaci résbe való belépéshez</strong> — több tucat óra kutatás a vásárlói viselkedésről, kulcsszavakról, tartalomstruktúráról</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>SEO ügynökség (alternatíva):</strong> 200 000–600 000 Ft/hó, hosszú szerződések, eredmények a 6.–12. hónapban</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Google algoritmus változás?</strong> Az Ön problémája. Indexelés az AI keresésben (ChatGPT, Perplexity)? Az Ön problémája.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">7 / 15</div>
+</div>
+
+<!-- SLIDE 8 — FÖRDELAR 1-4 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">ELŐNYÖK 1–4</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Mit ad ez Önnek konkrétan (1. rész)</h1>
+    <div class="h1-line"></div>
+    <div class="korzysci-grid">
+      <div class="korzysc-card"><div class="korzysc-num">1</div><div class="korzysc-content"><div class="title">Exkluzív jelenlét az Ön piaci résében</div><div class="desc">Az Oldal csak az Ön termékeit jeleníti meg a Hatókörön belül — semmi konkurencia. A megoldást kereső ügyfél az Oldalra kerül és csak Önt látja. Teljes figyelem, zavartalan vásárlási döntés.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">2</div><div class="korzysc-content"><div class="title">Branding és márka tekintély</div><div class="desc">Az Ön logója, „A márkáról" rész a cég történetével és gyártási folyamatával, B2B kapcsolat. Az Oldal tekintélyi pozíciót épít a kategóriában — nem csak egy újabb eladó a 30 márkás listán.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">3</div><div class="korzysc-content"><div class="title">Nincsenek Oldal-építési költségek</div><div class="desc">Piaci rés kutatás, vásárlói viselkedés elemzése, kulcsszavak, tartalom (több ezer szó alkategóriánként + márka profil + főoldal), fotók, layout — minden a mi oldalunkon.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">4</div><div class="korzysc-content"><div class="title">Nincsenek Oldal-karbantartási költségek</div><div class="desc">Szerver, domain, elérhetőség, monitorozás, biztonság, biztonsági mentések — minden a miénk. Megjelenik egy hiba — javítjuk. Jön egy szezon, trend, új bestseller — hozzáadjuk.</div></div></div>
+    </div>
+  </div>
+  <div class="page-num">8 / 15</div>
+</div>
+
+<!-- SLIDE 9 — FÖRDELAR 5-8 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">ELŐNYÖK 5–8</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Mit ad ez Önnek konkrétan (2. rész)</h1>
+    <div class="h1-line"></div>
+    <div class="korzysci-grid">
+      <div class="korzysc-card"><div class="korzysc-num">5</div><div class="korzysc-content"><div class="title">Nincs szükség SEO és AI-search specialistákra</div><div class="desc">A Google algoritmus változik — ez a mi problémánk. Indexelés, GEO, Schema.org, Core Web Vitals, tartalom frissítések — minden a mi oldalunkon. Ön sem ügynökséget, sem specialistákat nem alkalmaz.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">6</div><div class="korzysc-content"><div class="title">Plusz hely az ügyfél képernyőjén</div><div class="desc">Az ügyfél keres, 10 találatot lát a Google-ben. Ha a mi Oldalunk bekerül oda — ez eggyel kevesebb hely a konkurenciának. Az ügyfél csak az Ön termékeit és a „A márkáról" részt látja.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">7</div><div class="korzysc-content"><div class="title">BSR javítása az Amazonon</div><div class="desc">Minden további rendelés a mi Oldalunkról javítja az Ön BSR-jét az adott ASIN-on. És mivel az ügyfél nem a konkurenciánál vásárolt — az ő BSR-jük romlik. Kettős hatás: Ön fel, ők le.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">8</div><div class="korzysc-content"><div class="title">Nincs jogi felelősség az Oldalért</div><div class="desc">Minden: tartalom, tárhely, GDPR, tájékoztatási kötelezettségek, szerzői jogok — a mi oldalunkon. Az egyetlen, ami Önnél marad, az Ön által biztosított anyag (logó, márka leírás).</div></div></div>
+    </div>
+  </div>
+  <div class="page-num">9 / 15</div>
+</div>
+
+<!-- SLIDE 10 — BONUS B2B -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">BÓNUSZ — ERŐS ÉRV</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1 smaller">Közvetlen B2B csatorna a Patrónussal — Amazon-jutalék nélkül</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Amit egy szabványos Amazon listing nem ad Önnek — és ami sok eladó számára a legerősebb érv a Site Patron mellett.</p>
+    <div class="bonus-grid">
+      <div class="bonus-col">
+        <div class="col-title">Mi van a patrónusi Oldalon</div>
+        <div class="bonus-list">
+          <div class="bonus-list-item"><span>Cégprofil tevékenység-leírással, történettel, értékekkel</span></div>
+          <div class="bonus-list-item"><span>Közvetlen kapcsolat: e-mail, telefon, kapcsolatfelvételi űrlap</span></div>
+          <div class="bonus-list-item"><span>Felhívás kapcsolatfelvételre nagyobb rendeléseket, B2B-t, nagykereskedelmet kereső ügyfeleknek</span></div>
+          <div class="bonus-list-item"><span>„Vegye fel a kapcsolatot közvetlenül" gombok a termékajánlások mellett</span></div>
+        </div>
+      </div>
+      <div class="bonus-col">
+        <div class="col-title">Mit ad ez Önnek gyakorlatban</div>
+        <div class="bonus-list">
+          <div class="bonus-list-item"><span>A nagykereskedelmi ügyfelek ({{B2B_BUYERS_NOM}}) közvetlenül Önnek írnak</span></div>
+          <div class="bonus-list-item"><span>Eladás az Amazonon kívül = 15 %-os jutalék nélkül, platform-korlátozások nélkül</span></div>
+          <div class="bonus-list-item"><span>Lehetőség árak egyeztetésére és B2B számlázásra cégek között</span></div>
+          <div class="bonus-list-item"><span>Állandó ügyfél a portfóliójában — ismétlődő rendelések Amazon-költségek nélkül</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="example-box">
+      <div class="example-label">KONKRÉT PÉLDA</div>
+      <p class="example-text">Egy ügyfél megrendel egy szettet: {{B2B_QUANTITY}} {{B2B_PRODUCT_PL}} (pl. {{B2B_BUYERS_GEN}}). <strong>Az Amazonon:</strong> darabonként vásárol, minden darabra 15 %-os Amazon-jutalék + platform-korlátozások. <strong>Közvetlenül a Patrónustól az Oldalon keresztül:</strong> egy B2B számla cégek között, jutalék nélkül, lehetőség nagyobb mennyiségnél árat egyeztetni. Tiszta nyereség + új üzleti kapcsolat a portfólióban.</p>
+    </div>
+  </div>
+  <div class="page-num">10 / 15</div>
+</div>
+
+<!-- SLIDE 11 — EXKLUZIVITÁS -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">EXKLUZIVITÁS</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Az exkluzivitás exkluzivitást jelent</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Mi változik pontosan az Ön „igen"-je után — és mi történik, ha megszünteti az előfizetést.</p>
+    <div class="exclusivity-grid">
+      <div class="exclusivity-col before-state">
+        <div class="state-label">PATRÓNUS NÉLKÜL (MOST)</div>
+        <div class="state-desc">A B Oldal (multi-brand) online van és sok márka termékét mutatja be. Az Ön termékei ott vannak a 30+ ajánlat egyikeként. Az ügyfél mindenkit lát, a döntés szétaprózódik.</div>
+        <div class="brand-grid">
+          <div class="brand-chip">A márka</div>
+          <div class="brand-chip">B márka</div>
+          <div class="brand-chip">C márka</div>
+          <div class="brand-chip">D márka</div>
+          <div class="brand-chip others" style="grid-column: 1 / -1;">+ 26 további</div>
+        </div>
+      </div>
+      <div class="exclusivity-col after-state">
+        <div class="state-label">A SITE PATRONNAL</div>
+        <div class="state-desc">Az A Oldal (patrónusi) CSAK az Ön termékeit jeleníti meg. A B Oldal (multi-brand) KIKAPCSOLVA marad az előfizetés teljes ideje alatt. Az ügyfél csak Önt látja.</div>
+        <div class="exclusive-banner"><div class="text">CSAK AZ ÖN TERMÉKEI</div></div>
+      </div>
+    </div>
+    <p class="footer-text"><strong style="color: var(--anthrazit);">Szerződéses védelem (24., 27., 31. záradék):</strong> az előfizetés megszűnése után az Ön anyagait (logó, „A márkáról" rész) 14 napon belül eltávolítjuk. Az A Oldal visszatér a multi-brand módba. Az A Oldal akkor egy másik eladónak ajánlható mint patrónusi (a megszűnés utáni Önnel szembeni exkluzivitási kötelezettség nélkül — 27.2. záradék). De amíg fizet — az exkluzivitás exkluzivitás. Plusz anti-kannibalizáció: az előfizetés alatt nem fogadunk be konkurenset megtévesztően hasonló domainen (15. záradék).</p>
+  </div>
+  <div class="page-num">11 / 15</div>
+</div>
+
+<!-- SLIDE 12 — JOGI SZEMPONTOK -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">JOGI SZEMPONTOK</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Hogyan működik az Amazon a mi Oldalunkon</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Röviden arról, miért legális Amazon termékeket bemutatni a mi Oldalunkon — és mit jelent ez Önnek mint eladónak.</p>
+    <div class="legal-box">
+      <div class="legal-title">📋 Amazon termékek megjelenítése — jogi alap</div>
+      <p>Az Amazon termékek megjelenítését a mi Oldalunkon — fotóik, áraik, címeik és leírásaik — <strong>az Amazonnal kötött affiliate szerződésem</strong> szabályozza (Amazon EU Associates Programme IP Licence). Ez a szerződés feljogosít arra, hogy az Amazon platform termékeit legálisan bemutassam az Oldalam szerkesztői Tartalmában.</p>
+      <p><strong>Mit jelent ez a gyakorlatban:</strong> Az Amazon licencet ad nekem termékek bemutatására. Egy eladó (Ön, az Ön versenytársa, bárki) nem tudja blokkolni azt, hogy bizonyos termékeket bemutatok a platformról. Ez az Amazon és köztem van — Ön itt nem fél.</p>
+      <p><strong>Mit ad ez Önnek mint Patrónusnak:</strong> biztonságot, hogy az Oldal erős jogi alapon működik. A termékek exkluzivitása a Hatókörön belül egy kiegészítő szolgáltatás, amelyet vásárol — mi vállaljuk, hogy az Ön előfizetése alatt nem mutatjuk be a konkurenciát (a szerződés 14.1. záradéka). Az Ön előfizetése nélkül — a multi-brand verzió megmarad, legális, működik.</p>
+    </div>
+    <p class="footer-text" style="margin-top: 20px;"><em>A szerződésben ellenőrizendő záradékok: 5. (Az Oldal jellege), 7. (Függetlenség az Amazon affiliate-től), 16. (Amazon tartalom és megfelelőség).</em></p>
+  </div>
+  <div class="page-num">12 / 15</div>
+</div>
+
+<!-- SLIDE 13 — PRIS -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">ÁR — EZ EGY „NO-BRAINER"</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Egy csomag. Két opció. Fix díj.</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Nincs jutalék. Nincs CPC. Nincsenek rejtett költségek. 30 napos pénz-visszafizetési garancia = nulla kockázat.</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="plan-name">Havi</div>
+        <div class="price-big">{{PRICE_MONTHLY_USD}} USD</div>
+        <div class="price-period">havonta</div>
+        <div class="price-divider"></div>
+        <div class="price-meta">Min. időszak: 3 hónap ({{PRICE_MIN_3M_USD}} USD)<br>Automatikusan megújul a felmondásig</div>
+      </div>
+      <div class="price-card recommended">
+        <div class="recommended-tag">AJÁNLOTT — MEGTAKARÍT {{PRICE_SAVINGS_USD}} USD-T</div>
+        <div class="plan-name">Éves</div>
+        <div class="price-big">{{PRICE_YEARLY_USD}} USD</div>
+        <div class="price-period">évente</div>
+        <div class="price-divider"></div>
+        <div class="price-meta">Min. időszak: 1 év<br>Automatikusan megújul a felmondásig</div>
+      </div>
+    </div>
+    <div class="pricing-bottom">
+      <div class="pricing-bottom-list">
+        <strong>Ez egy klasszikus „no-brainer":</strong> &nbsp;
+        <span class="check">✓</span> <strong>Nulla kockázat:</strong> 30 napos pénz-visszafizetési garancia az első befizetésre &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>Semmi kötelezettség:</strong> felmondás egy kattintással a panelen vagy e-mailben &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>Alacsony belépési küszöb:</strong> ~20 000 Ft/hó — kevesebb mint egy óra SEO-specialista munkája &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>Az Oldal már létezik</strong> — nem vár hónapokig, hogy valami elkezdődjön &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>Minden rendelés az Oldalról</strong> — plusz költség nélkül (slide 6)<br>
+        <em style="color: var(--gray);">Fizetés: Stripe vagy PayPal, számla automatikusan a könyvelés után.</em>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">13 / 15</div>
+</div>
+
+<!-- SLIDE 14 — KÖVETKEZŐ LÉPÉSEK -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">KÖVETKEZŐ LÉPÉSEK</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Hogyan kezdjen el — 5 lépésben, 2–3 nap alatt</h1>
+    <div class="h1-line"></div>
+    <div class="timeline-grid">
+      <div class="timeline-card"><div class="num">01</div><div class="title">Csomag választás e-mailben</div><div class="desc">Válaszol az e-mailre a választással (havi / éves) vagy kérdésekkel.</div><div class="tag">0. NAP</div></div>
+      <div class="timeline-card"><div class="num">02</div><div class="title">Fizetés</div><div class="desc">Küldök egy checkout linket (Stripe / PayPal). Előre fizet. A számla azonnal érkezik.</div><div class="tag">1. NAP</div></div>
+      <div class="timeline-card"><div class="num">03</div><div class="title">Logó + márka leírás</div><div class="desc">Elküldi a logót (SVG/PNG) és 2–3 mondatot a márkáról.</div><div class="tag">1. NAP–2</div></div>
+      <div class="timeline-card"><div class="num">04</div><div class="title">Exkluzivitás aktív</div><div class="desc">Az A Oldal csak Önt jeleníti meg. A B Oldal kikapcsolva.</div><div class="tag">2–3. NAP</div></div>
+      <div class="timeline-card"><div class="num">05</div><div class="title">Első jelentés</div><div class="desc">30 nap után — jelentés a számokkal. Utána havonta.</div><div class="tag">+30 NAP</div></div>
+    </div>
+    <p class="next-footer">Jelenleg ezt kizárólag Önnek ajánlom. Várom a döntését vagy kérdéseit. Hamarosan, ha nem érkezik válasz, a Site Patront ebben a kategóriában más eladóknak is felajánlom — de ma a téma csak Önnek szól.</p>
+  </div>
+  <div class="page-num">14 / 15</div>
+</div>
+
+<!-- SLIDE 15 — KÉSZEN ÁLL A BESZÉLGETÉSRE? -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">KÉSZEN ÁLL A BESZÉLGETÉSRE?</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Kezdjük?</h1>
+    <div class="h1-line"></div>
+    <p class="ready-subtitle">Az Oldalak már online vannak. Nézze meg. Nyissa meg a PDF-et. Válaszoljon, amikor tetszik.<br>Konverzió általában kétjegyű. Fix ár. Felmondás egy kattintással.</p>
+    <div class="contact-grid">
+      <div class="contact-col">
+        <div class="ttl">📧 KONTAKT</div>
+        <div class="contact-row"><div class="lbl">E-MAIL</div><div class="val">service@netanaliza.com</div></div>
+        <div class="contact-row"><div class="lbl">WHATSAPP</div><div class="val">+48 795 055 173</div></div>
+        <div class="contact-row"><div class="lbl">WEB</div><div class="val">rekl-ama.pl</div></div>
+      </div>
+      <div class="contact-col">
+        <div class="ttl">🏢 ÜZEMELTETŐ</div>
+        <div class="contact-row"><div class="lbl">CÉG</div><div class="val">NETANALIZA LTD</div></div>
+        <div class="contact-row"><div class="lbl">CÍM</div><div class="val">71-75 Shelton Street, Covent Garden, WC2H 9JQ, London, UK</div></div>
+        <div class="contact-row"><div class="lbl">COMPANY NO.</div><div class="val">16499220</div></div>
+      </div>
+    </div>
+    <div class="ready-cta">VÁLASZOLJON ERRE AZ E-MAILRE ÉS KEZDJÜK</div>
+    <p class="ready-meta">Łukasz Koronczok · NETANALIZA LTD · {{DECK_DATE}}</p>
+  </div>
+  <div class="page-num">15 / 15</div>
+</div>
+
+</div>
+</body>
+</html>
