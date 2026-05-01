@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SitePatron Deck v2 — Sosenco-style</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&display=block" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F8F6F1; --cream-bar: #EDE7DC; --bg: #E5DFD0;
+    --anthrazit: #1A2A3A; --anthrazit-light: #2A3F58;
+    --brass: #C9A961; --brass-light: #E6D7AF; --brass-bg: #F4EDD9;
+    --text: #1A2A3A; --gray: #5F6978; --gray-light: #9aa3b0;
+    --red: #C43C3C; --green: #4C915F; --blue: #6482B4; --white: #FFFFFF;
+    --shadow: 0 2px 6px rgba(26, 42, 58, 0.06);
+    --shadow-strong: 0 6px 24px rgba(26, 42, 58, 0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: auto; }
+  body { background: var(--bg); font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--text); line-height: 1.5; padding: 30px 0; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  .deck { display: flex; flex-direction: column; align-items: center; gap: 30px; }
+  .slide { width: 1280px; height: 905px; background: var(--cream); position: relative; overflow: hidden; box-shadow: var(--shadow-strong); page-break-after: always; flex-shrink: 0; }
+  .header-bar { position: absolute; top: 0; left: 0; right: 0; height: 56px; background: var(--cream-bar); display: flex; align-items: center; justify-content: space-between; padding: 0 60px; }
+  .header-label { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--brass); text-transform: uppercase; }
+  .luko-tag { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--brass); }
+  .slide-content { padding: 86px 60px 56px; height: 100%; display: flex; flex-direction: column; }
+  .h1 { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 60px; line-height: 1.1; color: var(--anthrazit); margin-bottom: 18px; letter-spacing: -0.8px; }
+  .h1.smaller { font-size: 50px; }
+  .h1-line { height: 2px; background: var(--brass); margin-bottom: 24px; width: 100%; }
+  .subtitle { font-size: 19px; line-height: 1.55; color: var(--gray); margin-bottom: 28px; max-width: 1100px; }
+  .section-title { font-size: 19px; font-weight: 600; color: var(--anthrazit); margin-bottom: 14px; }
+  .page-num { position: absolute; bottom: 22px; right: 60px; font-size: 12px; color: var(--gray-light); letter-spacing: 0.5px; z-index: 5; }
+  .check { color: var(--green); font-weight: 700; font-size: 18px; }
+  .x-mark { color: var(--red); font-weight: 700; font-size: 20px; }
+  .plus-mark { color: var(--brass); font-weight: 700; font-size: 20px; }
+  .cover { background: var(--cream); padding: 70px 90px 90px; display: flex; flex-direction: column; justify-content: space-between; }
+  .cover-luko { position: absolute; top: 60px; right: 90px; font-size: 14px; font-weight: 700; letter-spacing: 2px; color: var(--brass); }
+  .cover-title { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 96px; line-height: 1.05; color: var(--anthrazit); letter-spacing: -2.5px; margin-top: 60px; }
+  .cover-meta { margin-top: 40px; }
+  .cover-subtitle { font-size: 28px; color: var(--brass); font-weight: 600; margin-bottom: 16px; letter-spacing: 0.3px; }
+  .cover-desc { font-size: 22px; line-height: 1.55; color: var(--anthrazit); max-width: 800px; }
+  .cover-footer-block { border-top: 2px solid var(--brass); padding-top: 16px; width: 360px; }
+  .cover-brand { font-size: 14px; font-weight: 700; color: var(--anthrazit); letter-spacing: 6px; word-spacing: 8px; margin-bottom: 7px; }
+  .cover-meta-line { font-size: 11px; color: var(--gray); letter-spacing: 5px; word-spacing: 8px; text-transform: uppercase; }
+  .benefits-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 40px; margin-bottom: 34px; }
+  .benefit-item { display: flex; gap: 14px; align-items: flex-start; font-size: 17px; line-height: 1.5; }
+  .benefit-item .icon { color: var(--green); font-weight: 700; flex-shrink: 0; font-size: 18px; }
+  .benefit-item strong { color: var(--anthrazit); font-weight: 600; }
+  .demos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 18px; }
+  .demo-box { background: white; border-radius: 8px; padding: 22px 28px; border: 2px solid; box-shadow: var(--shadow); }
+  .demo-box.yellow { border-color: var(--brass); }
+  .demo-box.blue { border-color: var(--blue); }
+  .demo-box .label { font-size: 14px; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 10px; }
+  .demo-box.yellow .label { color: var(--brass); }
+  .demo-box.blue .label { color: var(--blue); }
+  .demo-box .url { display: block; text-decoration: none; font-size: 21px; font-weight: 700; color: var(--anthrazit); margin-bottom: 10px; font-family: 'Inter', monospace; }
+  .demo-box .url:hover { color: var(--blue); }
+  .demo-box .desc { font-size: 15px; color: var(--gray); line-height: 1.5; }
+  .footer-note { font-size: 14.5px; color: var(--gray); font-style: italic; margin-top: auto; }
+  .problems-list { display: flex; flex-direction: column; gap: 22px; margin-top: 8px; }
+  .problem-item { display: flex; gap: 20px; align-items: flex-start; }
+  .problem-item .icon { color: var(--red); font-weight: 700; font-size: 24px; flex-shrink: 0; line-height: 1; margin-top: 4px; }
+  .problem-item .text { flex: 1; font-size: 17px; line-height: 1.55; color: var(--gray); }
+  .problem-item .text strong { color: var(--anthrazit); font-weight: 700; font-size: 18px; }
+  .solution-box { background: var(--anthrazit); color: white; padding: 36px 42px; border-radius: 8px; margin-bottom: 36px; position: relative; }
+  .solution-box .lead { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 32px; line-height: 1.3; margin-bottom: 16px; color: white; }
+  .solution-box .lead-detail { font-size: 18px; line-height: 1.6; color: rgba(255,255,255,0.85); }
+  .solution-box .star-mark { color: var(--brass); font-size: 32px; margin-right: 8px; }
+  .steps-grid { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 14px; align-items: stretch; }
+  .step-card { background: white; border-radius: 8px; padding: 26px 22px; text-align: center; border-top: 3px solid var(--brass); box-shadow: var(--shadow); }
+  .step-card .num { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 46px; color: var(--brass); line-height: 1; margin-bottom: 12px; }
+  .step-card .title { font-size: 18px; font-weight: 700; color: var(--anthrazit); margin-bottom: 8px; }
+  .step-card .desc { font-size: 14px; color: var(--gray); line-height: 1.5; }
+  .step-arrow { align-self: center; color: var(--brass); font-size: 32px; font-weight: 300; }
+  .numbers-hero { text-align: center; margin: 18px 0 38px; }
+  .big-number { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 140px; line-height: 1; color: var(--anthrazit); letter-spacing: -4px; margin-bottom: 12px; }
+  .numbers-subtitle { font-size: 19px; color: var(--gray); max-width: 900px; margin: 0 auto; line-height: 1.5; }
+  .numbers-subtitle strong { color: var(--anthrazit); }
+  .bar-chart { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 80px; align-items: end; height: 240px; padding: 0 100px; margin-bottom: 32px; }
+  .bar-col { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+  .bar-value { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 28px; color: var(--anthrazit); margin-bottom: 10px; }
+  .bar { width: 100%; border-radius: 4px 4px 0 0; box-shadow: var(--shadow); }
+  .bar.gray { background: var(--gray); }
+  .bar.brass { background: var(--brass); }
+  .bar-label { font-size: 15px; color: var(--gray); margin-top: 14px; text-align: center; font-weight: 500; }
+  .why-text { font-size: 16px; color: var(--gray); line-height: 1.55; margin-top: auto; }
+  .differentiator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 26px; }
+  .col-light { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .col-dark { background: var(--anthrazit); color: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .col-title { font-size: 16px; font-weight: 600; color: var(--gray); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #E5E0D5; }
+  .col-dark .col-title { color: var(--brass); border-bottom: 1px solid rgba(201,169,97,0.3); }
+  .channel-list { display: flex; flex-direction: column; gap: 14px; }
+  .channel-item { display: flex; gap: 14px; align-items: flex-start; font-size: 16px; line-height: 1.45; }
+  .channel-item .x-mark { font-size: 18px; line-height: 1.4; }
+  .channel-item strong { color: var(--anthrazit); font-weight: 600; }
+  .price-hero { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 64px; color: var(--brass); line-height: 1; margin: 10px 0 6px; }
+  .price-sub { font-size: 17px; color: rgba(255,255,255,0.75); margin-bottom: 22px; }
+  .col-dark .channel-item .check { color: var(--brass); }
+  .col-dark .channel-item { color: rgba(255,255,255,0.92); }
+  .col-dark .channel-item strong { color: white; }
+  .footer-text { font-size: 15px; color: var(--gray); line-height: 1.55; margin-top: auto; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-bottom: 18px; }
+  .compare-card { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .compare-card.brass-top { border-top: 4px solid var(--brass); }
+  .compare-card.gray-top { border-top: 4px solid var(--gray-light); background: #F5F2EB; }
+  .compare-card .label { font-size: 14px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .compare-card.brass-top .label { color: var(--brass); }
+  .compare-card.gray-top .label { color: var(--gray); }
+  .compare-card .price { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 30px; color: var(--anthrazit); margin-bottom: 18px; }
+  .compare-card .price.muted { color: var(--gray); font-size: 21px; font-style: italic; font-weight: 500; }
+  .compare-list { display: flex; flex-direction: column; gap: 11px; }
+  .compare-list-item { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.45; }
+  .compare-list-item .icon { flex-shrink: 0; width: 18px; text-align: center; }
+  .korzysci-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 8px; }
+  .korzysc-card { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); border-left: 4px solid var(--brass); display: flex; gap: 20px; align-items: flex-start; }
+  .korzysc-num { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 50px; color: var(--brass); line-height: 1; flex-shrink: 0; width: 60px; }
+  .korzysc-content .title { font-size: 19px; font-weight: 700; color: var(--anthrazit); margin-bottom: 8px; }
+  .korzysc-content .desc { font-size: 15px; color: var(--gray); line-height: 1.5; }
+  .bonus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-bottom: 24px; }
+  .bonus-col { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .bonus-col .col-title { font-size: 15px; font-weight: 700; color: var(--brass); letter-spacing: 0.5px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #E5E0D5; text-transform: uppercase; }
+  .bonus-list { display: flex; flex-direction: column; gap: 13px; }
+  .bonus-list-item { display: flex; gap: 12px; font-size: 16px; line-height: 1.45; color: var(--anthrazit); }
+  .bonus-list-item::before { content: "•"; color: var(--brass); font-weight: 700; flex-shrink: 0; font-size: 18px; }
+  .example-box { background: var(--brass-bg); border-left: 4px solid var(--brass); padding: 22px 28px; border-radius: 4px; }
+  .example-label { font-size: 13px; font-weight: 700; letter-spacing: 1.4px; color: var(--brass); margin-bottom: 10px; }
+  .example-text { font-size: 15.5px; line-height: 1.55; color: var(--anthrazit); }
+  .exclusivity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-bottom: 18px; }
+  .exclusivity-col { background: white; border-radius: 8px; padding: 26px 30px; box-shadow: var(--shadow); }
+  .exclusivity-col.before-state { background: #F5F2EB; opacity: 0.85; }
+  .exclusivity-col .state-label { font-size: 14px; font-weight: 700; letter-spacing: 0.6px; margin-bottom: 8px; }
+  .exclusivity-col.before-state .state-label { color: var(--gray); }
+  .exclusivity-col.after-state .state-label { color: var(--brass); }
+  .exclusivity-col .state-desc { font-size: 15px; color: var(--gray); line-height: 1.5; margin-bottom: 18px; }
+  .brand-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .brand-chip { background: white; border: 1px solid #E5E0D5; padding: 10px 14px; border-radius: 4px; font-size: 14px; color: var(--gray); text-align: center; }
+  .brand-chip.others { background: transparent; color: var(--gray-light); font-style: italic; border: 1px dashed #D5D0C0; }
+  .exclusive-banner { background: var(--anthrazit); color: white; padding: 28px 32px; border-radius: 6px; text-align: center; margin-top: 14px; }
+  .exclusive-banner .text { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 28px; color: var(--brass); letter-spacing: 0.8px; }
+  .legal-box { background: white; border-radius: 8px; padding: 32px 38px; box-shadow: var(--shadow); border-left: 5px solid var(--brass); }
+  .legal-box .legal-title { font-size: 20px; font-weight: 700; color: var(--brass); margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #E5E0D5; }
+  .legal-box p { font-size: 17px; line-height: 1.65; color: var(--anthrazit); margin-bottom: 16px; }
+  .legal-box p:last-child { margin-bottom: 0; }
+  .legal-box p strong { color: var(--brass); font-weight: 700; }
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 24px; margin-top: 8px; }
+  .price-card { background: white; border-radius: 10px; padding: 34px 38px; box-shadow: var(--shadow); text-align: center; position: relative; }
+  .price-card.recommended { border: 2px solid var(--brass); box-shadow: var(--shadow-strong); }
+  .recommended-tag { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); background: var(--brass); color: white; font-size: 13px; font-weight: 700; letter-spacing: 1.2px; padding: 7px 18px; border-radius: 4px; white-space: nowrap; }
+  .price-card .plan-name { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 32px; color: var(--anthrazit); margin-bottom: 16px; }
+  .price-card .price-big { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 76px; color: var(--anthrazit); line-height: 1; letter-spacing: -2.5px; }
+  .price-card .price-period { font-size: 18px; color: var(--gray); margin: 8px 0 18px; }
+  .price-card .price-divider { width: 60%; height: 1px; background: #E5E0D5; margin: 8px auto 16px; }
+  .price-card .price-meta { font-size: 15px; color: var(--gray); line-height: 1.6; }
+  .pricing-bottom { background: var(--brass-bg); border-radius: 6px; padding: 18px 26px; }
+  .pricing-bottom-list { font-size: 14.5px; color: var(--anthrazit); line-height: 1.7; }
+  .pricing-bottom-list strong { color: var(--anthrazit); font-weight: 700; }
+  .timeline-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin: 18px 0 28px; }
+  .timeline-card { background: white; border-radius: 8px; padding: 24px 20px; box-shadow: var(--shadow); text-align: center; border-top: 3px solid var(--brass); position: relative; }
+  .timeline-card .num { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 42px; color: var(--brass); line-height: 1; margin-bottom: 12px; }
+  .timeline-card .title { font-size: 16px; font-weight: 700; color: var(--anthrazit); margin-bottom: 10px; line-height: 1.3; }
+  .timeline-card .desc { font-size: 13px; color: var(--gray); line-height: 1.5; margin-bottom: 14px; }
+  .timeline-card .tag { font-size: 11.5px; font-weight: 700; letter-spacing: 1px; color: var(--brass); background: var(--brass-bg); padding: 5px 12px; border-radius: 3px; display: inline-block; }
+  .next-footer { font-size: 16px; color: var(--gray); line-height: 1.55; font-style: italic; margin-top: auto; }
+  .ready-subtitle { font-size: 21px; color: var(--gray); line-height: 1.55; margin-bottom: 36px; }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 32px; }
+  .contact-col { background: white; border-radius: 8px; padding: 28px 32px; box-shadow: var(--shadow); }
+  .contact-col .ttl { font-size: 17px; font-weight: 700; color: var(--brass); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #E5E0D5; }
+  .contact-row { margin-bottom: 14px; }
+  .contact-row:last-child { margin-bottom: 0; }
+  .contact-row .lbl { font-size: 12px; font-weight: 700; color: var(--gray); letter-spacing: 1.2px; margin-bottom: 4px; }
+  .contact-row .val { font-size: 17px; color: var(--anthrazit); font-weight: 500; }
+  .ready-cta { background: var(--brass); color: white; padding: 22px 32px; border-radius: 6px; text-align: center; font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 26px; letter-spacing: 0.5px; }
+  .ready-meta { font-size: 14px; color: var(--gray); text-align: center; margin-top: 20px; font-style: italic; }
+  @media print { body { background: white; padding: 0; } .deck { gap: 0; } .slide { box-shadow: none; page-break-after: always; } @page { size: 1280px 905px; margin: 0; } }
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- SLIDE 1 — OMSLAG -->
+<div class="slide cover">
+  <div class="cover-luko">✦ LUKO SITE PATRON</div>
+  <div>
+    <h1 class="cover-title">Một trang web<br>có thể hoạt động<br>độc quyền cho Quý vị</h1>
+    <div class="cover-meta">
+      <div class="cover-subtitle">Site Patron 2026 — đề xuất dành cho người bán Amazon</div>
+      <p class="cover-desc">Một trang web chuyên biệt trong ngách của Quý vị. Tính độc quyền. Thương hiệu của Quý vị.<br>Kênh B2B trực tiếp, không hoa hồng.<br>Hãy xem, đánh giá, quyết định.</p>
+    </div>
+  </div>
+  <div class="cover-footer-block">
+    <div class="cover-brand">LUKO SITE PATRON</div>
+    <div class="cover-meta-line">NETANALIZA LTD · LK24 · {{DECK_DATE}}</div>
+  </div>
+  <div class="page-num">1 / 15</div>
+</div>
+
+<!-- SLIDE 2 — TÔI CUNG CẤP GÌ -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">TÔI CUNG CẤP GÌ</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Một trang web chuyên biệt — của Quý vị, nếu Quý vị muốn</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Tôi điều hành một trang web chủ đề trong ngách của Quý vị. Nó có thể hoạt động độc quyền dưới thương hiệu của Quý vị. Bên dưới: nội dung cung cấp + hai phiên bản demo để so sánh.</p>
+    <h3 class="section-title">🎯 Trang web được đề xuất mang lại gì cho Quý vị khi trở thành Patron</h3>
+    <div class="benefits-grid">
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Chỉ sản phẩm của Quý vị</strong> — không có cạnh tranh trong Phạm vi</span></div>
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Logo của Quý vị + mục „Về thương hiệu"</strong> — lịch sử công ty (Quý vị có thể cung cấp tài liệu — nhưng không bắt buộc)</span></div>
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Liên hệ B2B trực tiếp</strong> — không qua Amazon, không hoa hồng</span></div>
+      <div class="benefit-item"><span class="icon">✓</span><span><strong>Mọi thứ về phía chúng tôi</strong> — nội dung, SEO, GEO, hosting, giám sát</span></div>
+    </div>
+    <h3 class="section-title">Quý vị muốn xem trực tiếp? Tôi có hai phiên bản demo để so sánh:</h3>
+    <div class="demos-grid">
+      <div class="demo-box yellow">
+        <div class="label">🟡 PHIÊN BẢN A — PATRON  ●  LIVE</div>
+        <a class="url" href="{{DEMO_URL_A}}" target="_blank" rel="noopener">{{DEMO_URL_A}}</a>
+        <div class="desc">Đây là cách một Trang web patronage trông như thế nào. Chỉ sản phẩm của Quý vị. Hồ sơ thương hiệu. Liên hệ B2B.</div>
+      </div>
+      <div class="demo-box blue">
+        <div class="label">🔵 PHIÊN BẢN B — MULTI-BRAND  ●  LIVE</div>
+        <a class="url" href="{{DEMO_URL_B}}" target="_blank" rel="noopener">{{DEMO_URL_B}}</a>
+        <div class="desc">Đây là cách trang web multi-brand trông như thế nào (để so sánh). Sản phẩm của Quý vị bên cạnh 30+ đối thủ.</div>
+      </div>
+    </div>
+    <p class="footer-note">30 giây làm việc: mở cả hai liên kết trong các tab mới. Nội dung và thiết kế rất giống nhau — sự khác biệt chính nằm ở danh sách sản phẩm và phần thương hiệu.</p>
+  </div>
+  <div class="page-num">2 / 15</div>
+</div>
+
+<!-- SLIDE 3 — VẤN ĐỀ -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">VẤN ĐỀ</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Mỗi lần bán bổ sung trên Amazon<br>càng ngày càng tốn kém</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Các phương pháp tiêu chuẩn để tăng doanh số đều có chi phí riêng. Tất cả. Mỗi cái theo cách của nó.</p>
+    <div class="problems-list">
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Amazon Ads (CPC + ACOS).</strong> Quý vị trả tiền cho mỗi lần nhấp. ACOS ngoài các sản phẩm bán chạy nhất thường nằm trong khoảng 15 đến 25 % — một phần lợi nhuận của Quý vị bị quảng cáo nuốt mất. Tỷ lệ chuyển đổi thường là 4–5 % (đôi khi lên đến 10 %, nhưng hiếm).</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Influencer và đối tác affiliate.</strong> Quý vị trả hoa hồng cho mỗi lần bán. Với 200–1 000 đơn hàng mỗi tháng, ngay cả 5 % cũng là tiền thật. Và nó thường là kênh ngắn hạn — một bài đăng rồi kết thúc.</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Các đại lý SEO truyền thống.</strong> 12–37 triệu ₫/tháng, kết quả chỉ có vào tháng 6–12. Họ yêu cầu hợp đồng dài hạn và hợp tác liên tục. Quý vị không thể chỉ bắt đầu và dừng lại khi muốn.</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Quảng cáo display / banner.</strong> CPM cao, chuyển đổi thấp. Mọi người bỏ qua banner. Nhận diện thương hiệu tăng tối thiểu — doanh số còn ít hơn.</div></div>
+      <div class="problem-item"><span class="icon">✗</span><div class="text"><strong>Trang web thương hiệu riêng.</strong> Yêu cầu Quý vị thuê copywriter, developer, chuyên gia SEO và AI-search. Tên miền, hosting, bảo trì. Kết quả đầu tiên sau một năm.</div></div>
+    </div>
+  </div>
+  <div class="page-num">3 / 15</div>
+</div>
+
+<!-- SLIDE 4 — GIẢI PHÁP -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">GIẢI PHÁP</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Site Patron — kết hợp lợi ích, cắt giảm chi phí</h1>
+    <div class="h1-line"></div>
+    <div class="solution-box">
+      <div class="lead"><span class="star-mark">✦</span>Quý vị thuê không gian trên một trang web chuyên biệt trong ngách của Quý vị — và chỉ sản phẩm của Quý vị được hiển thị ở đó.</div>
+      <p class="lead-detail">Trang web được tối ưu hóa cho Google (SEO) và cho các công cụ tìm kiếm AI: ChatGPT, Perplexity, Claude, Grok (đó là GEO). Tất cả lưu lượng truy cập đi trực tiếp đến sản phẩm của Quý vị trên Amazon. Quý vị trả phí hàng tháng cố định, thấp. Không có hoa hồng bán hàng. Không có chi phí xây dựng trang web. Không có chi phí bảo trì.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="num">1</div><div class="title">Chúng tôi xây dựng Trang web</div><div class="desc">Nghiên cứu ngách, từ khóa, hành vi khách hàng. Nội dung. Tất cả.</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step-card"><div class="num">2</div><div class="title">Khách hàng tìm kiếm giải pháp</div><div class="desc">Đến từ Google hoặc tìm kiếm AI. Đọc hướng dẫn, thấy gợi ý.</div></div>
+      <div class="step-arrow">→</div>
+      <div class="step-card"><div class="num">3</div><div class="title">Đi đến Amazon và mua</div><div class="desc">Nhấp. Đến listing của Quý vị. Mua. Quý vị xử lý đơn hàng.</div></div>
+    </div>
+  </div>
+  <div class="page-num">4 / 15</div>
+</div>
+
+<!-- SLIDE 5 — SIFFRORNA -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">CON SỐ TỪ DỰ ÁN HIỆN TẠI CỦA CHÚNG TÔI</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Một chuyển đổi mà quảng cáo không đạt được</h1>
+    <div class="h1-line"></div>
+    <div class="numbers-hero">
+      <div class="big-number">10–50 %</div>
+      <p class="numbers-subtitle">Đây là số người đã truy cập trang Site Patron, nhấp và mua trên Amazon. <strong>Trong các ngách cụ thể với độ phù hợp khách hàng/sản phẩm tốt — 30–50 %.</strong></p>
+    </div>
+    <div class="bar-chart">
+      <div class="bar-col"><div class="bar-value">4–5 %</div><div class="bar gray" style="height: 24px;"></div><div class="bar-label">Amazon Ads — trung bình</div></div>
+      <div class="bar-col"><div class="bar-value">~10 %</div><div class="bar gray" style="height: 55px;"></div><div class="bar-label">Amazon Ads — cao nhất</div></div>
+      <div class="bar-col"><div class="bar-value">10–50 %</div><div class="bar brass" style="height: 220px;"></div><div class="bar-label">Site Patron</div></div>
+    </div>
+    <p class="why-text"><strong style="color: var(--anthrazit);">Tại sao cao như vậy?</strong> Mọi người không đến Trang web của chúng tôi một cách tình cờ — họ đang tìm kiếm một giải pháp cụ thể cho một vấn đề cụ thể. Trang web cung cấp cho họ chính xác câu trả lời đó và chỉ rõ sản phẩm. Không có sự xao nhãng, không có 10 thương hiệu để so sánh, không có lời hứa marketing. Có một hướng dẫn, có sản phẩm, có liên kết đến Amazon.</p>
+  </div>
+  <div class="page-num">5 / 15</div>
+</div>
+
+<!-- SLIDE 6 — ĐIỀU KHÁC BIỆT CỦA MÔ HÌNH NÀY -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">ĐIỀU KHÁC BIỆT CỦA MÔ HÌNH NÀY</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">{{PRICE_MONTHLY_USD}} USD — và mỗi đơn hàng đều miễn phí</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Trong thực tế, tất cả các hình thức marketing và quảng cáo khác đều tạo ra chi phí bổ sung cho mỗi đơn hàng phát sinh. Với Site Patron — không.</p>
+    <div class="differentiator-grid">
+      <div class="col-light">
+        <div class="col-title">Các kênh khác — chi phí tăng theo mỗi đơn hàng</div>
+        <div class="channel-list">
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Amazon Ads (PPC)</strong> — CPC × mỗi lần nhấp</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Influencer / affiliate</strong> — % hoa hồng × mỗi lần bán</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Google Ads / Facebook Ads</strong> — CPC × mỗi lần nhấp</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Quảng cáo display / banner</strong> — CPM × mỗi lần hiển thị</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Bản tin / email marketing</strong> — phí danh sách × gửi</span></div>
+          <div class="channel-item"><span class="x-mark">✗</span><span><strong>Đại lý SEO</strong> — 12–37 triệu ₫/tháng + hợp đồng dài hạn</span></div>
+        </div>
+      </div>
+      <div class="col-dark">
+        <div class="col-title">LUKO Site Patron — phí cố định</div>
+        <div class="price-hero">{{PRICE_MONTHLY_USD}} USD</div>
+        <div class="price-sub">mỗi tháng — và đó là tất cả</div>
+        <div class="channel-list">
+          <div class="channel-item"><span class="check" style="color: var(--brass);">✓</span><span><strong style="color:white;">Mỗi đơn hàng từ Trang web</strong> — không có chi phí bổ sung</span></div>
+          <div class="channel-item"><span class="check" style="color: var(--brass);">✓</span><span><strong style="color:white;">Mỗi lượt xem</strong> — miễn phí</span></div>
+          <div class="channel-item"><span class="check" style="color: var(--brass);">✓</span><span><strong style="color:white;">Mỗi khách hàng B2B bán buôn</strong> — không hoa hồng</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="footer-text"><strong style="color: var(--anthrazit);">Logic rất đơn giản:</strong> tất cả các kênh marketing khác đều tăng chi phí theo doanh số — chúng càng hoạt động tốt, càng tốn kém cho Quý vị. Site Patron hoạt động ngược lại: Trang web mang lại càng nhiều đơn hàng, càng có lợi cho Quý vị. Giá cố định, không có giới hạn.</p>
+  </div>
+  <div class="page-num">6 / 15</div>
+</div>
+
+<!-- SLIDE 7 — NHỮNG GÌ QUÝ VỊ PHẢI TỰ LÀM -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">NHỮNG GÌ QUÝ VỊ PHẢI TỰ LÀM</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1 smaller">Chúng tôi làm TẤT CẢ công việc — những gì không thấy trong hóa đơn</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">{{PRICE_MONTHLY_USD}} USD mỗi tháng khoảng 1,25 triệu ₫. Bên dưới: thực sự Quý vị nhận được gì với mức giá này, và việc tự tổ chức tất cả những điều này sẽ tốn bao nhiêu.</p>
+    <div class="compare-grid">
+      <div class="compare-card brass-top">
+        <div class="label">🟡 Site Patron — chúng tôi</div>
+        <div class="price">~1 250 000 ₫ / tháng</div>
+        <div class="compare-list">
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Nghiên cứu ngách và từ khóa</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Viết và bảo trì nội dung</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Hosting, tên miền, giám sát, sao lưu</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>SEO (Google) + GEO (tìm kiếm AI)</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Schema.org, Core Web Vitals</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Cập nhật liên tục theo xu hướng</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Nhiều năm kinh nghiệm trong marketing online</span></div>
+          <div class="compare-list-item"><span class="icon check">✓</span><span>Kết quả đã được chứng minh trong các dự án khác</span></div>
+        </div>
+      </div>
+      <div class="compare-card gray-top">
+        <div class="label">🔵 Những gì Quý vị phải tự tổ chức</div>
+        <div class="price muted">không xứng đáng với mức giá đó</div>
+        <div class="compare-list">
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Giờ làm việc của Quý vị</strong> (hoặc của nhân viên) — nghiên cứu, viết, chỉnh sửa, giám sát</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Công cụ Quý vị cần dù sao:</strong> Ahrefs/Semrush (1,2–3,7 triệu ₫/tháng), máy chủ + tên miền, công cụ AI-content, analytics</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Thời gian chỉ để vào ngách</strong> — hàng chục giờ nghiên cứu về hành vi khách hàng, từ khóa, cấu trúc nội dung</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Đại lý SEO (phương án khác):</strong> 12–37 triệu ₫/tháng, hợp đồng dài hạn, kết quả tháng 6–12</span></div>
+          <div class="compare-list-item"><span class="icon plus-mark">+</span><span><strong>Thay đổi thuật toán Google?</strong> Vấn đề của Quý vị. Lập chỉ mục trong tìm kiếm AI (ChatGPT, Perplexity)? Vấn đề của Quý vị.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">7 / 15</div>
+</div>
+
+<!-- SLIDE 8 — FÖRDELAR 1-4 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">LỢI ÍCH 1–4</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Điều này cụ thể mang lại gì cho Quý vị (phần 1)</h1>
+    <div class="h1-line"></div>
+    <div class="korzysci-grid">
+      <div class="korzysc-card"><div class="korzysc-num">1</div><div class="korzysc-content"><div class="title">Sự hiện diện độc quyền trong ngách của Quý vị</div><div class="desc">Trang web chỉ hiển thị sản phẩm của Quý vị trong Phạm vi — không có cạnh tranh. Khách hàng tìm kiếm giải pháp đến Trang web và chỉ thấy Quý vị. Sự chú ý hoàn toàn, quyết định mua không bị làm phiền.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">2</div><div class="korzysc-content"><div class="title">Branding và uy tín thương hiệu</div><div class="desc">Logo của Quý vị, mục „Về thương hiệu" với lịch sử công ty và quy trình sản xuất, liên hệ B2B. Trang web xây dựng vị thế uy tín trong danh mục — không chỉ là một người bán khác trong danh sách 30 thương hiệu.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">3</div><div class="korzysc-content"><div class="title">Không có chi phí xây dựng Trang web</div><div class="desc">Nghiên cứu ngách, phân tích hành vi khách hàng, từ khóa, nội dung (vài nghìn từ mỗi danh mục con + hồ sơ thương hiệu + trang chủ), ảnh, bố cục — tất cả về phía chúng tôi.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">4</div><div class="korzysc-content"><div class="title">Không có chi phí bảo trì Trang web</div><div class="desc">Máy chủ, tên miền, tính khả dụng, giám sát, bảo mật, sao lưu — tất cả của chúng tôi. Xuất hiện lỗi — chúng tôi sửa. Có mùa, xu hướng, sản phẩm bán chạy mới — chúng tôi thêm vào.</div></div></div>
+    </div>
+  </div>
+  <div class="page-num">8 / 15</div>
+</div>
+
+<!-- SLIDE 9 — FÖRDELAR 5-8 -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">LỢI ÍCH 5–8</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Điều này cụ thể mang lại gì cho Quý vị (phần 2)</h1>
+    <div class="h1-line"></div>
+    <div class="korzysci-grid">
+      <div class="korzysc-card"><div class="korzysc-num">5</div><div class="korzysc-content"><div class="title">Không cần chuyên gia SEO và AI-search</div><div class="desc">Thuật toán Google thay đổi — đó là vấn đề của chúng tôi. Lập chỉ mục, GEO, Schema.org, Core Web Vitals, cập nhật nội dung — tất cả về phía chúng tôi. Quý vị không thuê đại lý hay chuyên gia.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">6</div><div class="korzysc-content"><div class="title">Không gian thêm trên màn hình khách hàng</div><div class="desc">Khách hàng tìm kiếm, thấy 10 kết quả trên Google. Nếu Trang web của chúng tôi nhảy vào đó — đó là một vị trí ít hơn cho đối thủ. Khách hàng chỉ thấy sản phẩm của Quý vị và mục „Về thương hiệu".</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">7</div><div class="korzysc-content"><div class="title">Cải thiện BSR trên Amazon</div><div class="desc">Mỗi đơn hàng bổ sung từ Trang web của chúng tôi cải thiện BSR của Quý vị trên ASIN cụ thể. Và vì khách hàng không mua từ đối thủ — BSR của họ kém đi. Hiệu ứng kép: Quý vị lên, họ xuống.</div></div></div>
+      <div class="korzysc-card"><div class="korzysc-num">8</div><div class="korzysc-content"><div class="title">Không có trách nhiệm pháp lý đối với Trang web</div><div class="desc">Tất cả: nội dung, hosting, GDPR, nghĩa vụ thông tin, bản quyền — về phía chúng tôi. Điều duy nhất Quý vị còn lại là tài liệu Quý vị cung cấp (logo, mô tả thương hiệu).</div></div></div>
+    </div>
+  </div>
+  <div class="page-num">9 / 15</div>
+</div>
+
+<!-- SLIDE 10 — BONUS B2B -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">BONUS — MỘT LẬP LUẬN MẠNH MẼ</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1 smaller">Kênh B2B trực tiếp với Patron — không hoa hồng Amazon</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Điều mà listing Amazon tiêu chuẩn không cung cấp — và đối với nhiều người bán, đó là lập luận mạnh nhất ủng hộ Site Patron.</p>
+    <div class="bonus-grid">
+      <div class="bonus-col">
+        <div class="col-title">Điều gì có trên trang web patron</div>
+        <div class="bonus-list">
+          <div class="bonus-list-item"><span>Hồ sơ công ty với mô tả hoạt động, lịch sử, giá trị</span></div>
+          <div class="bonus-list-item"><span>Liên hệ trực tiếp: email, điện thoại, biểu mẫu liên hệ</span></div>
+          <div class="bonus-list-item"><span>Lời kêu gọi liên hệ cho khách hàng tìm kiếm đơn hàng lớn hơn, B2B, bán buôn</span></div>
+          <div class="bonus-list-item"><span>Nút „Liên hệ trực tiếp" bên cạnh các đề xuất sản phẩm</span></div>
+        </div>
+      </div>
+      <div class="bonus-col">
+        <div class="col-title">Điều này thực tế mang lại gì cho Quý vị</div>
+        <div class="bonus-list">
+          <div class="bonus-list-item"><span>Khách hàng bán buôn ({{B2B_BUYERS_NOM}}) viết trực tiếp cho Quý vị</span></div>
+          <div class="bonus-list-item"><span>Bán hàng ngoài Amazon = không hoa hồng 15 %, không giới hạn nền tảng</span></div>
+          <div class="bonus-list-item"><span>Khả năng đàm phán giá và xuất hóa đơn B2B giữa các công ty</span></div>
+          <div class="bonus-list-item"><span>Khách hàng ổn định trong danh mục của Quý vị — đơn hàng định kỳ không có chi phí Amazon</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="example-box">
+      <div class="example-label">MỘT VÍ DỤ CỤ THỂ</div>
+      <p class="example-text">Khách hàng đặt một bộ: {{B2B_QUANTITY}} {{B2B_PRODUCT_PL}} (ví dụ: {{B2B_BUYERS_GEN}}). <strong>Trên Amazon:</strong> mua từng cái, mỗi cái chịu 15 % hoa hồng Amazon + giới hạn nền tảng. <strong>Trực tiếp từ Patron qua Trang web:</strong> một hóa đơn B2B giữa các công ty, không hoa hồng, không gian để đàm phán giá ở khối lượng lớn hơn. Lợi nhuận thuần + một liên hệ kinh doanh mới trong danh mục.</p>
+    </div>
+  </div>
+  <div class="page-num">10 / 15</div>
+</div>
+
+<!-- SLIDE 11 — TÍNH ĐỘC QUYỀN -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">TÍNH ĐỘC QUYỀN</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Độc quyền có nghĩa là độc quyền</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Điều gì chính xác thay đổi sau khi Quý vị nói „có" — và điều gì xảy ra nếu Quý vị chấm dứt đăng ký.</p>
+    <div class="exclusivity-grid">
+      <div class="exclusivity-col before-state">
+        <div class="state-label">KHÔNG CÓ PATRON (HIỆN TẠI)</div>
+        <div class="state-desc">Trang web B (multi-brand) đang trực tuyến và hiển thị sản phẩm từ nhiều thương hiệu. Sản phẩm của Quý vị có ở đó như một trong 30+ ưu đãi. Khách hàng thấy tất cả, quyết định bị phân tán.</div>
+        <div class="brand-grid">
+          <div class="brand-chip">Thương hiệu A</div>
+          <div class="brand-chip">Thương hiệu B</div>
+          <div class="brand-chip">Thương hiệu C</div>
+          <div class="brand-chip">Thương hiệu D</div>
+          <div class="brand-chip others" style="grid-column: 1 / -1;">+ 26 nữa</div>
+        </div>
+      </div>
+      <div class="exclusivity-col after-state">
+        <div class="state-label">VỚI SITE PATRON</div>
+        <div class="state-desc">Trang web A (dưới patronage) chỉ hiển thị sản phẩm của Quý vị. Trang web B (multi-brand) bị TẮT trong toàn bộ thời gian đăng ký. Khách hàng chỉ thấy Quý vị.</div>
+        <div class="exclusive-banner"><div class="text">CHỈ SẢN PHẨM CỦA QUÝ VỊ</div></div>
+      </div>
+    </div>
+    <p class="footer-text"><strong style="color: var(--anthrazit);">Bảo vệ theo hợp đồng (điều khoản 24, 27, 31):</strong> sau khi đăng ký kết thúc, tài liệu của Quý vị (logo, mục „Về thương hiệu") sẽ được xóa trong vòng 14 ngày. Trang web A quay trở lại chế độ multi-brand. Trang web A sau đó có thể được đề xuất cho người bán khác như patronage (không có nghĩa vụ độc quyền đối với Quý vị sau khi kết thúc — điều khoản 27.2). Nhưng miễn là Quý vị đang trả — độc quyền là độc quyền. Cộng với chống ăn thịt: trong thời gian đăng ký, chúng tôi không chấp nhận đối thủ cạnh tranh trên tên miền giống nhau gây nhầm lẫn (điều khoản 15).</p>
+  </div>
+  <div class="page-num">11 / 15</div>
+</div>
+
+<!-- SLIDE 12 — KHÍA CẠNH PHÁP LÝ -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">KHÍA CẠNH PHÁP LÝ</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Cách Amazon hoạt động trên Trang web của chúng tôi</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Tóm tắt về lý do tại sao việc hiển thị sản phẩm Amazon trên Trang web của chúng tôi là hợp pháp — và điều đó có nghĩa gì đối với Quý vị với tư cách là người bán.</p>
+    <div class="legal-box">
+      <div class="legal-title">📋 Hiển thị sản phẩm Amazon — cơ sở pháp lý</div>
+      <p>Việc hiển thị sản phẩm từ Amazon trên Trang web của chúng tôi — ảnh, giá, tiêu đề và mô tả của chúng — được điều chỉnh bởi <strong>thỏa thuận affiliate của tôi với Amazon</strong> (Amazon EU Associates Programme IP Licence). Thỏa thuận này cho tôi quyền hợp pháp giới thiệu sản phẩm từ nền tảng Amazon trong Nội dung biên tập của Trang web của tôi.</p>
+      <p><strong>Điều này có nghĩa gì trong thực tế:</strong> Amazon cấp cho tôi giấy phép hiển thị sản phẩm. Người bán (Quý vị, đối thủ của Quý vị, bất kỳ ai) không thể chặn tôi hiển thị một số sản phẩm từ nền tảng. Đó là giữa Amazon và tôi — Quý vị không phải là bên ở đây.</p>
+      <p><strong>Điều này mang lại cho Quý vị với tư cách Patron:</strong> sự yên tâm rằng Trang web hoạt động trên cơ sở pháp lý vững chắc. Tính độc quyền của các sản phẩm trong Phạm vi là một dịch vụ bổ sung Quý vị mua — chúng tôi cam kết không hiển thị cạnh tranh trong thời gian đăng ký của Quý vị (điều khoản 14.1 của thỏa thuận). Không có đăng ký của Quý vị — phiên bản multi-brand vẫn còn, hợp pháp, hoạt động.</p>
+    </div>
+    <p class="footer-text" style="margin-top: 20px;"><em>Điều khoản cần kiểm tra trong thỏa thuận: 5 (Tính chất của Trang web), 7 (Độc lập với Amazon affiliate), 16 (Nội dung Amazon và tuân thủ).</em></p>
+  </div>
+  <div class="page-num">12 / 15</div>
+</div>
+
+<!-- SLIDE 13 — PRIS -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">GIÁ — ĐÂY LÀ „NO-BRAINER"</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Một kế hoạch. Hai tùy chọn. Phí cố định.</h1>
+    <div class="h1-line"></div>
+    <p class="subtitle">Không hoa hồng. Không CPC. Không chi phí ẩn. Bảo đảm hoàn tiền 30 ngày = không rủi ro.</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="plan-name">Hàng tháng</div>
+        <div class="price-big">{{PRICE_MONTHLY_USD}} USD</div>
+        <div class="price-period">mỗi tháng</div>
+        <div class="price-divider"></div>
+        <div class="price-meta">Thời gian tối thiểu: 3 tháng ({{PRICE_MIN_3M_USD}} USD)<br>Tự động gia hạn cho đến khi hủy</div>
+      </div>
+      <div class="price-card recommended">
+        <div class="recommended-tag">KHUYẾN NGHỊ — TIẾT KIỆM {{PRICE_SAVINGS_USD}} USD</div>
+        <div class="plan-name">Hàng năm</div>
+        <div class="price-big">{{PRICE_YEARLY_USD}} USD</div>
+        <div class="price-period">mỗi năm</div>
+        <div class="price-divider"></div>
+        <div class="price-meta">Thời gian tối thiểu: 1 năm<br>Tự động gia hạn cho đến khi hủy</div>
+      </div>
+    </div>
+    <div class="pricing-bottom">
+      <div class="pricing-bottom-list">
+        <strong>Đây là một „no-brainer" cổ điển:</strong> &nbsp;
+        <span class="check">✓</span> <strong>Không rủi ro:</strong> Bảo đảm hoàn tiền 30 ngày từ lần thanh toán đầu tiên &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>Không cam kết:</strong> hủy bằng một cú nhấp trong bảng điều khiển hoặc qua email &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>Ngưỡng tham gia thấp:</strong> ~1 250 000 ₫/tháng — ít hơn một giờ làm việc của chuyên gia SEO &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>Trang web đã tồn tại</strong> — Quý vị không cần đợi vài tháng để có gì đó bắt đầu xảy ra &nbsp;|&nbsp;
+        <span class="check">✓</span> <strong>Mỗi đơn hàng từ Trang web</strong> — không có chi phí bổ sung (slide 6)<br>
+        <em style="color: var(--gray);">Thanh toán: Stripe hoặc PayPal, hóa đơn tự động sau khi đăng ký.</em>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">13 / 15</div>
+</div>
+
+<!-- SLIDE 14 — CÁC BƯỚC TIẾP THEO -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">CÁC BƯỚC TIẾP THEO</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Cách bắt đầu — trong 5 bước, trong 2–3 ngày</h1>
+    <div class="h1-line"></div>
+    <div class="timeline-grid">
+      <div class="timeline-card"><div class="num">01</div><div class="title">Chọn kế hoạch qua email</div><div class="desc">Quý vị trả lời email với lựa chọn (hàng tháng / hàng năm) hoặc với câu hỏi.</div><div class="tag">NGÀY 0</div></div>
+      <div class="timeline-card"><div class="num">02</div><div class="title">Thanh toán</div><div class="desc">Tôi gửi liên kết checkout (Stripe / PayPal). Quý vị thanh toán trước. Hóa đơn đến ngay lập tức.</div><div class="tag">NGÀY 1</div></div>
+      <div class="timeline-card"><div class="num">03</div><div class="title">Logo + mô tả thương hiệu</div><div class="desc">Quý vị gửi logo (SVG/PNG) và 2–3 câu về thương hiệu.</div><div class="tag">NGÀY 1–2</div></div>
+      <div class="timeline-card"><div class="num">04</div><div class="title">Độc quyền được kích hoạt</div><div class="desc">Trang web A chỉ hiển thị Quý vị. Trang web B bị tắt.</div><div class="tag">NGÀY 2–3</div></div>
+      <div class="timeline-card"><div class="num">05</div><div class="title">Báo cáo đầu tiên</div><div class="desc">Sau 30 ngày — báo cáo với các con số. Sau đó hàng tháng.</div><div class="tag">+30 NGÀY</div></div>
+    </div>
+    <p class="next-footer">Hiện tại tôi cung cấp điều này độc quyền cho Quý vị. Tôi đang chờ quyết định hoặc câu hỏi của Quý vị. Sớm thôi, nếu không có phản hồi, tôi sẽ đề xuất Site Patron cho những người bán khác trong danh mục này — nhưng hôm nay chủ đề chỉ dành cho Quý vị.</p>
+  </div>
+  <div class="page-num">14 / 15</div>
+</div>
+
+<!-- SLIDE 15 — SẴN SÀNG TRÒ CHUYỆN? -->
+<div class="slide">
+  <div class="header-bar"><div class="header-label">SẴN SÀNG TRÒ CHUYỆN?</div><div class="luko-tag">✦ LUKO SITE PATRON</div></div>
+  <div class="slide-content">
+    <h1 class="h1">Chúng ta bắt đầu chứ?</h1>
+    <div class="h1-line"></div>
+    <p class="ready-subtitle">Các Trang web đã trực tuyến. Hãy xem qua. Mở PDF. Trả lời khi Quý vị có thời gian.<br>Tỷ lệ chuyển đổi thường ở mức hai chữ số. Giá cố định. Hủy bằng một cú nhấp.</p>
+    <div class="contact-grid">
+      <div class="contact-col">
+        <div class="ttl">📧 KONTAKT</div>
+        <div class="contact-row"><div class="lbl">EMAIL</div><div class="val">service@netanaliza.com</div></div>
+        <div class="contact-row"><div class="lbl">WHATSAPP</div><div class="val">+48 795 055 173</div></div>
+        <div class="contact-row"><div class="lbl">WEB</div><div class="val">rekl-ama.pl</div></div>
+      </div>
+      <div class="contact-col">
+        <div class="ttl">🏢 NHÀ ĐIỀU HÀNH</div>
+        <div class="contact-row"><div class="lbl">CÔNG TY</div><div class="val">NETANALIZA LTD</div></div>
+        <div class="contact-row"><div class="lbl">ĐỊA CHỈ</div><div class="val">71-75 Shelton Street, Covent Garden, WC2H 9JQ, London, UK</div></div>
+        <div class="contact-row"><div class="lbl">COMPANY NO.</div><div class="val">16499220</div></div>
+      </div>
+    </div>
+    <div class="ready-cta">TRẢ LỜI EMAIL NÀY VÀ CHÚNG TA BẮT ĐẦU</div>
+    <p class="ready-meta">Łukasz Koronczok · NETANALIZA LTD · {{DECK_DATE}}</p>
+  </div>
+  <div class="page-num">15 / 15</div>
+</div>
+
+</div>
+</body>
+</html>
